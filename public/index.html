@@ -1,56 +1,83 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>CELEC · Producción e Hidrología</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CELEC · Hidroeléctrica · Producción e Hidrología</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>CELEC · Producción e Hidrología</h1>
-    <p>Datos diarios · Ecuador</p>
-  </header>
+  <div class="container">
+    <header class="header">
+      <div>
+        <h1>CELEC · Hidroeléctrica</h1>
+        <p class="subtitle">Dashboard diario. Producción (MWh) e Hidrología (m³/s, msnm).</p>
+      </div>
+      <div class="meta" id="meta"></div>
+    </header>
 
-  <main>
     <section class="controls">
-      <label>
-        Módulo:
+      <div class="control">
+        <label for="moduleSelect">Módulo</label>
         <select id="moduleSelect">
           <option value="produccion">Producción</option>
           <option value="hidrologia">Hidrología</option>
         </select>
-      </label>
+      </div>
 
-      <label>
-        Central:
+      <div class="control">
+        <label for="centralSelect">Central</label>
         <select id="centralSelect"></select>
-      </label>
+        <div class="hint">CSR = Molino + Mazar + Sopladora + MSF</div>
+      </div>
 
-      <label id="kindWrapper" style="display:none;">
-        Variable:
+      <div class="control" id="kindControl" style="display:none;">
+        <label for="kindSelect">Variable</label>
         <select id="kindSelect">
           <option value="caudal_m3s">Caudal (m³/s)</option>
           <option value="cota_msnm">Cota (msnm)</option>
         </select>
-      </label>
+      </div>
 
-      <label>
-        Años:
+      <div class="control years">
+        <label for="yearSelect">Años</label>
         <select id="yearSelect" multiple></select>
-      </label>
+        <div class="hint">Tip. Ctrl (Windows) para seleccionar varios</div>
+      </div>
+
+      <div class="control period">
+        <label>Periodo del año</label>
+
+        <div class="quick">
+          <button type="button" class="btn" data-range="full">Año</button>
+          <button type="button" class="btn" data-range="q1">Ene–Mar</button>
+          <button type="button" class="btn" data-range="q2">Abr–Jun</button>
+          <button type="button" class="btn" data-range="q3">Jul–Sep</button>
+          <button type="button" class="btn" data-range="q4">Oct–Dic</button>
+        </div>
+
+        <div class="range-row">
+          <div class="subcontrol">
+            <span class="subtle">Desde</span>
+            <select id="startMD"></select>
+          </div>
+          <div class="subcontrol">
+            <span class="subtle">Hasta</span>
+            <select id="endMD"></select>
+          </div>
+        </div>
+
+        <div class="hint">El intervalo es por mes y día. No depende del año.</div>
+      </div>
     </section>
 
     <section class="chart">
-      <canvas id="chart"></canvas>
+      <div id="plot" class="plot"></div>
+      <div class="footnote" id="footnote"></div>
     </section>
-  </main>
+  </div>
 
-  <footer>
-    <small>CELEC · Dashboard experimental</small>
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
