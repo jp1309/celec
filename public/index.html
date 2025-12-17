@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>CELEC · Producción e Hidrología</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>CELEC · Producción e Hidrología</h1>
+    <p>Datos diarios · Ecuador</p>
+  </header>
+
+  <main>
+    <section class="controls">
+      <label>
+        Módulo:
+        <select id="moduleSelect">
+          <option value="produccion">Producción</option>
+          <option value="hidrologia">Hidrología</option>
+        </select>
+      </label>
+
+      <label>
+        Central:
+        <select id="centralSelect"></select>
+      </label>
+
+      <label id="kindWrapper" style="display:none;">
+        Variable:
+        <select id="kindSelect">
+          <option value="caudal_m3s">Caudal (m³/s)</option>
+          <option value="cota_msnm">Cota (msnm)</option>
+        </select>
+      </label>
+
+      <label>
+        Años:
+        <select id="yearSelect" multiple></select>
+      </label>
+    </section>
+
+    <section class="chart">
+      <canvas id="chart"></canvas>
+    </section>
+  </main>
+
+  <footer>
+    <small>CELEC · Dashboard experimental</small>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
