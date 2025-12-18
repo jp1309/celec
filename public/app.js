@@ -41,6 +41,20 @@
   const btnResetProdPeriod = $("btnResetProdPeriod");
   const btnResetHidroPeriod = $("btnResetHidroPeriod");
 
+  const YEAR_COLORS = {
+    2025: "#3b82f6", // Blue
+    2024: "#ef4444", // Red
+    2023: "#10b981", // Green
+    2022: "#f59e0b", // Orange
+    2021: "#8b5cf6", // Purple
+    2020: "#ec4899", // Pink
+    "default": "#94a3b8"
+  };
+
+  function getYearColor(y) {
+    return YEAR_COLORS[y] || YEAR_COLORS.default;
+  }
+
   // ---- State ----
   let META = null;
   let PROD_DATA = null;
@@ -143,9 +157,9 @@
 
     // Group for different colors by year in line chart
     const tracesLine = [];
-    const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
 
     years.sort().forEach((y, i) => {
+      const color = getYearColor(y);
       const yearRows = lineRows
         .filter(r => r.date.startsWith(String(y)))
         .sort((a, b) => a.date.localeCompare(b.date));
@@ -158,7 +172,7 @@
         name: String(y),
         x: yearRows.map(r => r.date),
         y: yearRows.map(r => (parseNumber(r.value) || 0) / 1000), // MWh to GWh
-        line: { color: colors[i % colors.length], width: 2 },
+        line: { color: color, width: 2 },
         hovertemplate: "<b>%{x}</b><br>%{y:.2f} GWh<extra></extra>"
       });
     });
@@ -176,12 +190,13 @@
       if (total > 0) pieDataMap.set(p, total / 1000); // MWh to GWh
     });
 
+    const pieColors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
     const tracesPie = [{
       type: "pie",
       labels: Array.from(pieDataMap.keys()),
       values: Array.from(pieDataMap.values()),
       hole: 0.4,
-      marker: { colors: colors },
+      marker: { colors: pieColors },
       textinfo: "percent+label",
       insidetextorientation: "radial",
       hovertemplate: "<b>%{label}</b><br>%{value:.0f} GWh<br>%{percent}<extra></extra>",
@@ -223,7 +238,6 @@
     }
 
     const traces = [];
-    const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
 
     // Generic month labels helper
     const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
@@ -240,6 +254,7 @@
     const maxDoy = getDoy(endMonth + 1, 0); // Last day of endMonth
 
     years.sort().forEach((y, i) => {
+      const color = getYearColor(y);
       // Filtering by year and month range
       const yearRows = rows
         .filter(r => r.date.startsWith(String(y)))
