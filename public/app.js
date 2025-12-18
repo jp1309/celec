@@ -89,15 +89,25 @@
   async function loadCSV(url) {
     const resp = await fetch(url, { cache: "no-cache" });
     if (!resp.ok) throw new Error(`HTTP ${resp.status} ${url}`);
-    const text = await resp.text();
-    const lines = text.trim().split("\n");
-    if (lines.length < 1) return [];
-    const headers = lines[0].split(",").map(h => h.trim());
+    let text = await resp.text();
+
+    // Remove UTF-8 BOM if present
+    if (text.charCodeAt(0) === 0xFEFF) {
+      text = text.slice(1);
+    }
+
+    const lines = text.trim().split(/\r?\n/);
+    if (lines.length < 2) return [];
+
+    // Simple CSV parser that handles quotes and multiple delimiters (comma or semicolon)
+    const delimiter = lines[0].includes(";") ? ";" : ",";
+    const headers = lines[0].split(delimiter).map(h => h.trim().replace(/^["']|["']$/g, ""));
+
     return lines.slice(1).map(line => {
-      const values = line.split(",").map(v => v.trim());
+      const values = line.split(delimiter).map(v => v.trim().replace(/^["']|["']$/g, ""));
       const obj = {};
       headers.forEach((h, i) => {
-        obj[h] = values[i] || "";
+        if (h) obj[h] = values[i] || "";
       });
       return obj;
     });
@@ -283,8 +293,20 @@
         loadCSV(FILES.hidro)
       ]);
 
-      PROD_DATA = pData.map(r => ({ date: r.date, serie: r.serie, variable: r.variable, value: r.value }));
-      HIDRO_DATA = hData.map(r => ({ date: r.date, serie: r.serie, variable: r.variable, value: r.value }));
+      PROD_DATA = pData.map(r => ({
+        date: (r.date || "").trim(),
+        serie: (r.series || "").trim(),
+        variable: (r.metric || "").trim(),
+        value: parseNumber(r.value)
+      }));
+      HIDRO_DATA = hData.map(r => ({
+        date: (r.date || "").trim(),
+        serie: (r.series || "").trim(),
+        variable: (r.metric || "").trim(),
+        value: parseNumber(r.value)
+      }));
+
+      console.log("PROD_DATA sample:", PROD_DATA.slice(0, 2));
 
       // Listeners
       selProdCentral.addEventListener("change", drawProduction);
