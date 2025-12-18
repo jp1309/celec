@@ -230,6 +230,15 @@
     const tickVals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
     const tickText = monthNames;
 
+    // Calculate X-axis range based on selected months
+    const getDoy = (m, day) => {
+      const d = new Date(2025, m - 1, day); // Use a non-leap year (2025) for generic DOY
+      const start = new Date(2025, 0, 1);
+      return Math.floor((d - start) / 86400000) + 1;
+    };
+    const minDoy = getDoy(startMonth, 1);
+    const maxDoy = getDoy(endMonth + 1, 0); // Last day of endMonth
+
     years.sort().forEach((y, i) => {
       // Filtering by year and month range
       const yearRows = rows
@@ -288,6 +297,9 @@
 
     const layout = baseLayout(`Hidrología · ${targetSerie}`, variable, false);
 
+    // Adapt X-axis range
+    layout.xaxis.range = [minDoy, maxDoy];
+
     // Customize X-axis for generic date labels
     layout.xaxis.tickvals = tickVals;
     layout.xaxis.ticktext = tickText;
@@ -295,6 +307,16 @@
     // Fix Y-axis for Cota
     if (variable.includes("Cota")) {
       layout.yaxis.range = [2100, 2155];
+      layout.yaxis.dtick = 5; // Jumps of 5 in 5
+
+      // Add solid reference line at 2115
+      layout.shapes = [{
+        type: 'line',
+        x0: minDoy, x1: maxDoy,
+        y0: 2115, y1: 2115,
+        xref: 'x', yref: 'y',
+        line: { color: 'rgba(255, 255, 255, 0.4)', width: 2, dash: 'solid' }
+      }];
     }
 
     Plotly.react(plotHidroMain, traces, layout, { responsive: true, displayModeBar: false });
