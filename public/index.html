@@ -11,54 +11,78 @@
 <body>
   <div class="container">
     <header>
-      <div class="brand">
-        <h1>CELEC · Dashboard</h1>
-        <p>Análisis de Producción e Hidrología diaria</p>
+      <div class="brand-row">
+        <div class="brand">
+          <h1>CELEC · Dashboard</h1>
+          <p>Análisis de Producción e Hidrología diaria</p>
+        </div>
+        <div class="meta-status" id="metaStatus">Cargando metadatos...</div>
       </div>
-      <div class="meta-status" id="metaStatus">Cargando metadatos...</div>
+
+      <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="prod">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+          </svg>
+          Producción
+        </button>
+        <button class="tab-btn" data-tab="hidro">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+          </svg>
+          Hidrología
+        </button>
+      </nav>
     </header>
 
     <main class="dashboard-grid">
       <!-- Módulo de Producción -->
-      <section class="module-card" id="module-prod">
-        <div class="module-header">
-          <div class="module-title">
-            <h2>Producción de Energía</h2>
-            <span>Comparativa anual de generación en MWh</span>
+      <section class="module-content active" id="tab-prod">
+        <div class="module-card">
+          <div class="module-header">
+            <div class="module-title">
+              <h2>Generación de Energía</h2>
+              <span>Seguimiento temporal por central (MWh)</span>
+            </div>
+            <div class="controls-row">
+              <div class="control-group">
+                <label for="prodCentral">Central</label>
+                <select id="prodCentral"></select>
+              </div>
+              <div class="control-group">
+                <label for="prodYears">Años</label>
+                <select id="prodYears" multiple></select>
+              </div>
+            </div>
           </div>
-          <div class="controls-row">
-            <div class="control-group">
-              <label for="prodCentral">Central</label>
-              <select id="prodCentral"></select>
-            </div>
-            <div class="control-group">
-              <label for="prodYears">Años para comparar</label>
-              <select id="prodYears" multiple></select>
-            </div>
+          <div class="charts-row">
+            <div class="plot-container" id="plotProdLine"></div>
+            <div class="plot-container" id="plotProdPie"></div>
           </div>
         </div>
-        <div class="plot-container" id="plotProd"></div>
       </section>
 
       <!-- Módulo de Hidrología -->
-      <section class="module-card" id="module-hidro">
-        <div class="module-header">
-          <div class="module-title">
-            <h2>Hidrología</h2>
-            <span>Caudal (m³/s) y Cota (msnm)</span>
-          </div>
-          <div class="controls-row">
-            <div class="control-group">
-              <label for="hidroCentral">Central</label>
-              <select id="hidroCentral"></select>
+      <section class="module-content" id="tab-hidro">
+        <div class="module-card">
+          <div class="module-header">
+            <div class="module-title">
+              <h2>Comportamiento Hídrico</h2>
+              <span>Caudal y niveles de embalse</span>
             </div>
-            <div class="control-group">
-              <label for="hidroYears">Años para comparar</label>
-              <select id="hidroYears" multiple></select>
+            <div class="controls-row">
+              <div class="control-group">
+                <label for="hidroCentral">Central</label>
+                <select id="hidroCentral"></select>
+              </div>
+              <div class="control-group">
+                <label for="hidroYears">Años</label>
+                <select id="hidroYears" multiple></select>
+              </div>
             </div>
           </div>
+          <div class="plot-container" id="plotHidroMain"></div>
         </div>
-        <div class="plot-container" id="plotHidro"></div>
       </section>
     </main>
   </div>
