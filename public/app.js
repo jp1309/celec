@@ -1,3 +1,18 @@
+
+async function fetchTextSmart(paths, options) {
+  let lastErr = null;
+  for (const p of paths) {
+    try {
+      const r = await fetch(p, options);
+      if (!r.ok) throw new Error(`HTTP ${r.status} for ${p}`);
+      return await r.text();
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error("Fetch failed");
+}
+
 /* =========================================================
    CELEC · Dashboard – app.js
    - X axis: day-of-year normalized to 365 (Feb 29 removed)
@@ -281,16 +296,28 @@ function setOptions(){
   if (module === "hidrologia" && centrals.includes("molino")) centralSel.value = "molino";
 }
 
-async function loadAll(){
+async async function loadAll(){
   buildMDOptions();
   setQuickActive("full");
 
-  // Load datasets produced by Python
-  const [pTxt, hTxt, mTxt] = await Promise.all([
-    fetch("data/produccion_diaria_larga.csv").then(r => r.text()),
-    fetch("data/hidrologia_diaria_larga.csv").then(r => r.text()),
-    fetch("data/meta.json").then(r => r.ok ? r.json() : null),
-  ]);
+  
+  // Load datasets produced by Python (support both /data/* and root/* layouts)
+  const pTxt = await fetchTextSmart(
+    ["data/produccion_diaria_larga.csv", "produccion_diaria_larga.csv"],
+    { cache: "no-store" }
+  );
+  const hTxt = await fetchTextSmart(
+    ["data/hidrologia_diaria_larga.csv", "hidrologia_diaria_larga.csv"],
+    { cache: "no-store" }
+  );
+
+  let mTxt = null;
+  try {
+    const mStr = await fetchTextSmart(["data/meta.json", "meta.json"], { cache: "no-store" });
+    mTxt = JSON.parse(mStr);
+  } catch (_) {
+    mTxt = null;
+  }
 
   produccion = parseCSV(pTxt);
   hidrologia = parseCSV(hTxt);
@@ -312,9 +339,9 @@ async function loadAll(){
 
   // Meta panel
   const metaDiv = document.getElementById("meta");
-  if (meta && meta.generated_utc){
+  if (meta && (meta.generated_at_utc || meta.generated_utc)){
     metaDiv.textContent =
-      `Última generación (UTC): ${meta.generated_utc}\n` +
+      `Generado (UTC): ${meta.generated_at_utc || meta.generated_utc}\n` +
       `Última fecha prod.: ${meta.last_date_produccion}\n` +
       `Última fecha hidro.: ${meta.last_date_hidrologia}`;
   } else {
