@@ -38,6 +38,9 @@
   const selHidroEndMonth = $("hidroEndMonth");
   const plotHidroMain = $("plotHidroMain");
 
+  const btnResetProdPeriod = $("btnResetProdPeriod");
+  const btnResetHidroPeriod = $("btnResetHidroPeriod");
+
   // ---- State ----
   let META = null;
   let PROD_DATA = null;
@@ -122,6 +125,9 @@
   function drawProduction() {
     if (!PROD_DATA || !META) return;
 
+    const serie = selProdCentral.value;
+    const years = getSelectedValues(selProdYears).map(Number);
+    const yearSet = new Set(years);
     const startMonth = parseInt(selProdStartMonth.value);
     const endMonth = parseInt(selProdEndMonth.value);
 
@@ -347,8 +353,19 @@
       });
       selHidroVariable.addEventListener("change", drawHidrology);
       selHidroYears.addEventListener("change", drawHidrology);
-      selHidroStartMonth.addEventListener("change", drawHidrology);
       selHidroEndMonth.addEventListener("change", drawHidrology);
+
+      btnResetProdPeriod.addEventListener("click", () => {
+        selProdStartMonth.value = "1";
+        selProdEndMonth.value = "12";
+        drawProduction();
+      });
+
+      btnResetHidroPeriod.addEventListener("click", () => {
+        selHidroStartMonth.value = "1";
+        selHidroEndMonth.value = "12";
+        drawHidrology();
+      });
 
       drawProduction();
     } catch (e) {
