@@ -1,0 +1,45 @@
+{
+  "generated_at_utc": "2025-12-18T00:01:23.472342+00:00",
+  "produccion": {
+    "rows": 10840,
+    "years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "series": [
+      "CSR (Mol+Maz+Sop+MSF)",
+      "Mazar",
+      "Minas San Francisco",
+      "Molino",
+      "Sopladora"
+    ],
+    "metrics": [
+      "Energía (MWh)"
+    ]
+  },
+  "hidrologia": {
+    "rows": 17356,
+    "years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "series": [
+      "Mazar",
+      "Minas San Francisco",
+      "Molino",
+      "Sopladora"
+    ],
+    "metrics": [
+      "Caudal (m³/s)",
+      "Cota (msnm)"
+    ]
+  }
+}
