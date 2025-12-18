@@ -159,7 +159,7 @@
         x: yearRows.map(r => r.date),
         y: yearRows.map(r => (parseNumber(r.value) || 0) / 1000), // MWh to GWh
         line: { color: colors[i % colors.length], width: 2 },
-        hovertemplate: "%{x}<br>%{y:.0f} GWh<extra></extra>"
+        hovertemplate: "<b>%{x}</b><br>%{y:.2f} GWh<extra></extra>"
       });
     });
 
@@ -261,8 +261,9 @@
           name: `${y}`,
           x: displayRows.map(r => doyFromISO(r.date)),
           y: displayRows.map(r => r.value),
+          customdata: displayRows.map(r => r.date),
           line: { color: color, width: 2 },
-          hovertemplate: `Día %{x}<br>%{y:.${variable.includes("Cota") ? "2" : "0"}} ${variable.includes("Cota") ? "msnm" : "m³/s"}<extra></extra>`
+          hovertemplate: `<b>%{customdata}</b><br>%{y:.2f} ${variable.includes("Cota") ? "msnm" : "m³/s"}<extra></extra>`
         });
 
         // Moving Average Trace (Only for Caudal)
