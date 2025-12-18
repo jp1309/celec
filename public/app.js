@@ -267,15 +267,17 @@
       });
 
       if (displayRows.length > 0) {
-        // Main Trace (Live Data)
+        // Main Trace (Live Data) - attenuated and dotted for Caudal
+        const isCaudal = variable.includes("Caudal");
         traces.push({
           type: "scatter",
           mode: "lines",
-          name: `${y}`,
+          name: isCaudal ? `${y} (Diario)` : `${y}`,
           x: displayRows.map(r => doyFromISO(r.date)),
           y: displayRows.map(r => r.value),
           customdata: displayRows.map(r => r.date),
-          line: { color: color, width: 2 },
+          line: { color: color, width: isCaudal ? 1 : 2, dash: isCaudal ? "dot" : "solid" },
+          opacity: isCaudal ? 0.3 : 1,
           hovertemplate: `<b>%{customdata}</b><br>%{y:.2f} ${variable.includes("Cota") ? "msnm" : "m³/s"}<extra></extra>`
         });
 
@@ -299,10 +301,10 @@
               name: `${y} (Media 30d)`,
               x: filteredMA.map(d => d.doy),
               y: filteredMA.map(d => d.val),
-              line: { color: color, width: 1, dash: "dot" },
-              opacity: 0.5,
-              showlegend: false,
-              hoverinfo: "skip"
+              line: { color: color, width: 2, dash: "solid" },
+              opacity: 1,
+              showlegend: true,
+              hovertemplate: `<b>%{y:.2f} m³/s</b> (MA30)<extra></extra>`
             });
           }
         }
@@ -318,7 +320,7 @@
     layout.xaxis.tickvals = tickVals;
     layout.xaxis.ticktext = tickText;
 
-    // Fix Y-axis for Cota
+    // Fix Y-axis for Cota or Caudal
     if (variable.includes("Cota")) {
       layout.yaxis.range = [2100, 2155];
       layout.yaxis.dtick = 5; // Jumps of 5 in 5
@@ -331,6 +333,8 @@
         xref: 'x', yref: 'y',
         line: { color: 'rgba(255, 255, 255, 0.4)', width: 2, dash: 'solid' }
       }];
+    } else if (variable.includes("Caudal")) {
+      layout.yaxis.range = [0, 400];
     }
 
     Plotly.react(plotHidroMain, traces, layout, { responsive: true, displayModeBar: false });
