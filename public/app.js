@@ -226,7 +226,9 @@
     if (variable.includes("Caudal")) targetSerie = "Cuenca del Rio Paute";
     if (variable.includes("Cota")) targetSerie = "Mazar";
 
-    const rows = HIDRO_DATA.filter(r => r.serie === targetSerie && r.variable === variable);
+    const rows = HIDRO_DATA
+      .filter(r => r.serie === targetSerie && r.variable === variable)
+      .sort((a, b) => a.date.localeCompare(b.date));
 
     function calculateMA(data, period) {
       return data.map((val, idx, arr) => {
@@ -236,6 +238,12 @@
         return sum / period;
       });
     }
+
+    // Pre-calculate MA for ALL rows to have January continuity
+    const allValues = rows.map(r => r.value);
+    const allMA = calculateMA(allValues, 30);
+    // Attach MA to rows
+    rows.forEach((r, idx) => r.ma30 = allMA[idx]);
 
     const traces = [];
 
@@ -283,14 +291,14 @@
 
         // Moving Average Trace (Only for Caudal)
         if (variable.includes("Caudal")) {
-          const maValues = calculateMA(yearRows.map(r => r.value), 30);
-          // Align MA values with dates
-          const maTraceData = yearRows.map((r, idx) => ({ doy: doyFromISO(r.date), val: maValues[idx] }))
-            .filter(item => item.val !== null);
+          const maTraceData = yearRows
+            .filter(r => r.ma30 !== null)
+            .map(r => ({ doy: doyFromISO(r.date), val: r.ma30 }));
 
           // Filter MA trace data for current month range
           const filteredMA = maTraceData.filter(item => {
-            const m = parseInt(yearRows.find(r => doyFromISO(r.date) === item.doy).date.slice(5, 7));
+            const row = yearRows.find(r => doyFromISO(r.date) === item.doy);
+            const m = parseInt(row.date.slice(5, 7));
             return m >= startMonth && m <= endMonth;
           });
 
@@ -335,6 +343,15 @@
       }];
     } else if (variable.includes("Caudal")) {
       layout.yaxis.range = [0, 400];
+
+      // Add solid reference line at 50
+      layout.shapes = [{
+        type: 'line',
+        x0: minDoy, x1: maxDoy,
+        y0: 50, y1: 50,
+        xref: 'x', yref: 'y',
+        line: { color: 'rgba(255, 255, 255, 0.4)', width: 2, dash: 'solid' }
+      }];
     }
 
     Plotly.react(plotHidroMain, traces, layout, { responsive: true, displayModeBar: false });
