@@ -200,42 +200,103 @@
   function drawHidrology() {
     if (!HIDRO_DATA || !META) return;
 
-    const serie = selHidroCentral.value;
     const variable = selHidroVariable.value;
     const years = getSelectedValues(selHidroYears).map(Number);
     const startMonth = parseInt(selHidroStartMonth.value);
     const endMonth = parseInt(selHidroEndMonth.value);
-    if (!serie || years.length === 0) return;
+    if (years.length === 0) return;
 
-    const filterByMonth = (r) => {
-      const m = parseInt(r.date.slice(5, 7));
-      return m >= startMonth && m <= endMonth;
-    };
+    // Fixed series per user request
+    let targetSerie = "";
+    if (variable.includes("Caudal")) targetSerie = "Cuenca del Rio Paute";
+    if (variable.includes("Cota")) targetSerie = "Mazar";
 
-    const rows = HIDRO_DATA.filter(r => r.serie === serie && r.variable === variable && filterByMonth(r));
+    const rows = HIDRO_DATA.filter(r => r.serie === targetSerie && r.variable === variable);
+
+    function calculateMA(data, period) {
+      return data.map((val, idx, arr) => {
+        if (idx < period - 1) return null;
+        const slice = arr.slice(idx - period + 1, idx + 1);
+        const sum = slice.reduce((a, b) => a + b, 0);
+        return sum / period;
+      });
+    }
 
     const traces = [];
     const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
 
+    // Generic month labels helper
+    const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const tickVals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
+    const tickText = monthNames;
+
     years.sort().forEach((y, i) => {
+      // Filtering by year and month range
       const yearRows = rows
         .filter(r => r.date.startsWith(String(y)))
         .sort((a, b) => doyFromISO(a.date) - doyFromISO(b.date));
 
-      if (yearRows.length > 0) {
+      // Secondary filter by month range for the chart display range
+      const displayRows = yearRows.filter(r => {
+        const m = parseInt(r.date.slice(5, 7));
+        return m >= startMonth && m <= endMonth;
+      });
+
+      if (displayRows.length > 0) {
+        const color = colors[i % colors.length];
+
+        // Main Trace (Live Data)
         traces.push({
           type: "scatter",
           mode: "lines",
-          name: String(y),
-          x: yearRows.map(r => doyFromISO(r.date)),
-          y: yearRows.map(r => r.value),
-          line: { color: colors[i % colors.length], width: 2.5 },
+          name: `${y}`,
+          x: displayRows.map(r => doyFromISO(r.date)),
+          y: displayRows.map(r => r.value),
+          line: { color: color, width: 2 },
           hovertemplate: `Día %{x}<br>%{y:.${variable.includes("Cota") ? "2" : "0"}} ${variable.includes("Cota") ? "msnm" : "m³/s"}<extra></extra>`
         });
+
+        // Moving Average Trace (Only for Caudal)
+        if (variable.includes("Caudal")) {
+          const maValues = calculateMA(yearRows.map(r => r.value), 30);
+          // Align MA values with dates
+          const maTraceData = yearRows.map((r, idx) => ({ doy: doyFromISO(r.date), val: maValues[idx] }))
+            .filter(item => item.val !== null);
+
+          // Filter MA trace data for current month range
+          const filteredMA = maTraceData.filter(item => {
+            const m = parseInt(yearRows.find(r => doyFromISO(r.date) === item.doy).date.slice(5, 7));
+            return m >= startMonth && m <= endMonth;
+          });
+
+          if (filteredMA.length > 0) {
+            traces.push({
+              type: "scatter",
+              mode: "lines",
+              name: `${y} (Media 30d)`,
+              x: filteredMA.map(d => d.doy),
+              y: filteredMA.map(d => d.val),
+              line: { color: color, width: 1, dash: "dot" },
+              opacity: 0.5,
+              showlegend: false,
+              hoverinfo: "skip"
+            });
+          }
+        }
       }
     });
 
-    const layout = baseLayout(`Hidrología · ${serie}`, variable, false);
+    const layout = baseLayout(`Hidrología · ${targetSerie}`, variable, false);
+
+    // Customize X-axis for generic date labels
+    layout.xaxis.tickvals = tickVals;
+    layout.xaxis.ticktext = tickText;
+
+    // Fix Y-axis for Cota
+    if (variable.includes("Cota")) {
+      layout.yaxis.range = [2100, 2155];
+    }
+
     Plotly.react(plotHidroMain, traces, layout, { responsive: true, displayModeBar: false });
   }
 
@@ -292,11 +353,7 @@
       META.produccion.years.sort((a, b) => b - a).forEach(y => addOption(selProdYears, y, y));
       if (selProdYears.options.length >= 1) selProdYears.options[0].selected = true;
 
-      // Populate Hydrology
-      clearSelect(selHidroCentral);
-      META.hidrologia.series.forEach(s => addOption(selHidroCentral, s, s));
-      selHidroCentral.value = META.hidrologia.series[0];
-
+      // Populate Hydrology (Remove Central populate as it's fixed now)
       clearSelect(selHidroYears);
       META.hidrologia.years.sort((a, b) => b - a).forEach(y => addOption(selHidroYears, y, y));
       if (selHidroYears.options.length >= 1) selHidroYears.options[0].selected = true;
@@ -335,24 +392,9 @@
       selProdYears.addEventListener("change", drawProduction);
       selProdStartMonth.addEventListener("change", drawProduction);
       selProdEndMonth.addEventListener("change", drawProduction);
-      selHidroCentral.addEventListener("change", () => {
-        // Cuenca del Rio Paute doesn't have Cota
-        const variable = selHidroVariable.value;
-        const isPaute = selHidroCentral.value.includes("Paute");
-        const cotaOpt = Array.from(selHidroVariable.options).find(o => o.value.includes("Cota"));
-
-        if (isPaute) {
-          if (cotaOpt) cotaOpt.disabled = true;
-          if (variable.includes("Cota")) {
-            selHidroVariable.value = "Caudal (m³/s)";
-          }
-        } else {
-          if (cotaOpt) cotaOpt.disabled = false;
-        }
-        drawHidrology();
-      });
       selHidroVariable.addEventListener("change", drawHidrology);
       selHidroYears.addEventListener("change", drawHidrology);
+      selHidroStartMonth.addEventListener("change", drawHidrology);
       selHidroEndMonth.addEventListener("change", drawHidrology);
 
       btnResetProdPeriod.addEventListener("click", () => {
