@@ -30,6 +30,7 @@
 
   // Hydrology Controls
   const selHidroCentral = $("hidroCentral");
+  const selHidroVariable = $("hidroVariable");
   const selHidroYears = $("hidroYears");
   const plotHidroMain = $("plotHidroMain");
 
@@ -121,7 +122,7 @@
     const years = getSelectedValues(selProdYears).map(Number);
     const yearSet = new Set(years);
 
-    // 1. Line Chart (Full Date X-Axis)
+    // 1. Line Chart (Full Date X-Axis) - Convert to GWh
     const lineRows = PROD_DATA.filter(r => r.serie === serie && yearSet.has(Number(r.date.slice(0, 4))));
 
     // Group for different colors by year in line chart
@@ -129,7 +130,10 @@
     const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
 
     years.sort().forEach((y, i) => {
-      const yearRows = lineRows.filter(r => r.date.startsWith(String(y)));
+      const yearRows = lineRows
+        .filter(r => r.date.startsWith(String(y)))
+        .sort((a, b) => a.date.localeCompare(b.date));
+
       if (yearRows.length === 0) return;
 
       tracesLine.push({
@@ -137,13 +141,13 @@
         mode: "lines",
         name: String(y),
         x: yearRows.map(r => r.date),
-        y: yearRows.map(r => r.value),
+        y: yearRows.map(r => (parseNumber(r.value) || 0) / 1000), // MWh to GWh
         line: { color: colors[i % colors.length], width: 2 },
-        hovertemplate: "%{x}<br>%{y:.2f} MWh<extra></extra>"
+        hovertemplate: "%{x}<br>%{y:.0f} GWh<extra></extra>"
       });
     });
 
-    Plotly.react(plotProdLine, tracesLine, baseLayout(`${serie} - Evolución Temporal`, "MWh", true), { responsive: true, displayModeBar: false });
+    Plotly.react(plotProdLine, tracesLine, baseLayout(`${serie} - Evolución`, "Generación (GWh)", true), { responsive: true, displayModeBar: false });
 
     // 2. Pie Chart (Comparison of plants for selected range)
     // We calculate total by plant excluding the sum series "CSR..."
@@ -154,7 +158,7 @@
       const total = PROD_DATA
         .filter(r => r.serie === p && yearSet.has(Number(r.date.slice(0, 4))))
         .reduce((acc, r) => acc + (parseNumber(r.value) || 0), 0);
-      if (total > 0) pieDataMap.set(p, total);
+      if (total > 0) pieDataMap.set(p, total / 1000); // MWh to GWh
     });
 
     const tracesPie = [{
@@ -165,6 +169,7 @@
       marker: { colors: colors },
       textinfo: "percent+label",
       insidetextorientation: "radial",
+      hovertemplate: "<b>%{label}</b><br>%{value:.0f} GWh<br>%{percent}<extra></extra>",
       automargin: true
     }];
 
@@ -181,53 +186,34 @@
     if (!HIDRO_DATA || !META) return;
 
     const serie = selHidroCentral.value;
+    const variable = selHidroVariable.value;
     const years = getSelectedValues(selHidroYears).map(Number);
     if (!serie || years.length === 0) return;
 
-    const rows = HIDRO_DATA.filter(r => r.serie === serie);
-    const caudalVar = "Caudal (m³/s)";
-    const cotaVar = "Cota (msnm)";
+    const rows = HIDRO_DATA.filter(r => r.serie === serie && r.variable === variable);
 
     const traces = [];
     const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
-    const yearSet = new Set(years);
 
     years.sort().forEach((y, i) => {
-      const yearRows = rows.filter(r => r.date.startsWith(String(y)));
+      const yearRows = rows
+        .filter(r => r.date.startsWith(String(y)))
+        .sort((a, b) => doyFromISO(a.date) - doyFromISO(b.date));
 
-      // Caudal Lines
-      const caudalRows = yearRows.filter(r => r.variable === caudalVar).sort((a, b) => doyFromISO(a.date) - doyFromISO(b.date));
-      if (caudalRows.length > 0) {
+      if (yearRows.length > 0) {
         traces.push({
-          type: "scatter", mode: "lines", name: `${y} Caudal`,
-          x: caudalRows.map(r => doyFromISO(r.date)),
-          y: caudalRows.map(r => r.value),
+          type: "scatter",
+          mode: "lines",
+          name: String(y),
+          x: yearRows.map(r => doyFromISO(r.date)),
+          y: yearRows.map(r => r.value),
           line: { color: colors[i % colors.length], width: 2.5 },
-          yaxis: "y"
-        });
-      }
-
-      // Cota Lines (Dashed)
-      const cotaRows = yearRows.filter(r => r.variable === cotaVar).sort((a, b) => doyFromISO(a.date) - doyFromISO(b.date));
-      if (cotaRows.length > 0) {
-        traces.push({
-          type: "scatter", mode: "lines", name: `${y} Cota`,
-          x: cotaRows.map(r => doyFromISO(r.date)),
-          y: cotaRows.map(r => r.value),
-          line: { color: colors[i % colors.length], dash: "dot", width: 1.5 },
-          yaxis: "y2",
-          opacity: 0.5
+          hovertemplate: `Día %{x}<br>%{y:.${variable.includes("Cota") ? "2" : "0"}} ${variable.includes("Cota") ? "msnm" : "m³/s"}<extra></extra>`
         });
       }
     });
 
-    const layout = baseLayout(`Hidrología · ${serie}`, caudalVar, false);
-    layout.yaxis2 = {
-      title: cotaVar, overlaying: "y", side: "right",
-      showgrid: false, zeroline: false,
-      tickfont: { color: "#94a3b8" }, titlefont: { color: "#94a3b8" }
-    };
-
+    const layout = baseLayout(`Hidrología · ${serie}`, variable, false);
     Plotly.react(plotHidroMain, traces, layout, { responsive: true, displayModeBar: false });
   }
 
@@ -236,13 +222,20 @@
       title: {
         text: title,
         font: { family: 'Outfit, sans-serif', color: '#f8fafc', size: 16 },
-        x: 0.05
+        x: 0,
+        y: 0.98,
+        pad: { t: 10 }
       },
       paper_bgcolor: "rgba(0,0,0,0)",
       plot_bgcolor: "rgba(0,0,0,0)",
-      margin: { l: 60, r: 60, t: 80, b: 60 },
+      margin: { l: 60, r: 40, t: 100, b: 60 }, // Added top margin for legend
       showlegend: true,
-      legend: { orientation: "h", y: 1.15, font: { color: "#94a3b8" } },
+      legend: {
+        orientation: "h",
+        y: 1.12,
+        x: 0,
+        font: { color: "#94a3b8", size: 12 }
+      },
       xaxis: {
         title: isDateX ? "Fecha" : "Día del Año",
         type: isDateX ? "date" : "linear",
@@ -293,18 +286,25 @@
         loadCSV(FILES.hidro)
       ]);
 
-      PROD_DATA = pData.map(r => ({
-        date: (r.date || "").trim(),
-        serie: (r.series || "").trim(),
-        variable: (r.metric || "").trim(),
-        value: parseNumber(r.value)
-      }));
-      HIDRO_DATA = hData.map(r => ({
-        date: (r.date || "").trim(),
-        serie: (r.series || "").trim(),
-        variable: (r.metric || "").trim(),
-        value: parseNumber(r.value)
-      }));
+      PROD_DATA = pData.map(r => {
+        const val = parseNumber(r.value);
+        return {
+          date: (r.date || "").trim(),
+          serie: (r.series || "").trim(),
+          variable: (r.metric || "").trim(),
+          value: val
+        };
+      }).filter(r => r.value > 0); // Exclude 0/NA values
+
+      HIDRO_DATA = hData.map(r => {
+        const val = parseNumber(r.value);
+        return {
+          date: (r.date || "").trim(),
+          serie: (r.series || "").trim(),
+          variable: (r.metric || "").trim(),
+          value: val
+        };
+      }).filter(r => r.value > 0); // Exclude 0/NA values
 
       console.log("PROD_DATA sample:", PROD_DATA.slice(0, 2));
 
@@ -312,6 +312,7 @@
       selProdCentral.addEventListener("change", drawProduction);
       selProdYears.addEventListener("change", drawProduction);
       selHidroCentral.addEventListener("change", drawHidrology);
+      selHidroVariable.addEventListener("change", drawHidrology);
       selHidroYears.addEventListener("change", drawHidrology);
 
       drawProduction();
