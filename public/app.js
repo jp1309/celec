@@ -142,17 +142,20 @@
     });
   }
 
-  function loadCSV(url) {
-    // Use Plotly's bundled d3 for robust CSV parsing
-    return new Promise((resolve, reject) => {
-      if (!window.Plotly || !Plotly.d3 || !Plotly.d3.csv) {
-        reject(new Error("Plotly.d3.csv no disponible"));
-        return;
-      }
-      Plotly.d3.csv(url, (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
+  async function loadCSV(url) {
+    const resp = await fetch(url, { cache: "no-cache" });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status} ${url}`);
+    const text = await resp.text();
+    const lines = text.trim().split("\n");
+    if (lines.length < 1) return [];
+    const headers = lines[0].split(",").map(h => h.trim());
+    return lines.slice(1).map(line => {
+      const values = line.split(",").map(v => v.trim());
+      const obj = {};
+      headers.forEach((h, i) => {
+        obj[h] = values[i] || "";
       });
+      return obj;
     });
   }
 
@@ -230,7 +233,7 @@
 
     if (mod === "produccion") {
       const rows = PROD.filter(r => r.serie === serie);
-      const traces = buildYearTraces(rows, years, from, to, "energia_mwh", "Energía (MWh)", null);
+      const traces = buildYearTraces(rows, years, from, to, "value", "Energía (MWh)", null);
       const yTitle = "Energía (MWh)";
       const layout = baseLayout(`Producción. ${serie}`, yTitle);
       Plotly.react(plotDiv, traces, layout, { displayModeBar: true, responsive: true });
@@ -244,10 +247,10 @@
       const rowsH = rows.filter(r => r.variable === cotaVar);
 
       const traces = [];
-      traces.push(...buildYearTraces(rowsC, years, from, to, "valor", caudalVar, null));
+      traces.push(...buildYearTraces(rowsC, years, from, to, "value", caudalVar, null));
 
       if (rowsH.length > 0) {
-        const t2 = buildYearTraces(rowsH, years, from, to, "valor", cotaVar, "y2");
+        const t2 = buildYearTraces(rowsH, years, from, to, "value", cotaVar, "y2");
         // make y2 lines dashed so they visually separate
         for (const t of t2) t.line = Object.assign({}, t.line || {}, { dash: "dot" });
         traces.push(...t2);
@@ -369,8 +372,9 @@
       const prodRows = await loadCSV(FILES.prod);
       PROD = prodRows.map(r => ({
         date: r.date,
-        serie: r.serie,
-        energia_mwh: r.energia_mwh
+        serie: r.series,
+        variable: r.metric,
+        value: r.value
       }));
     } catch (e) {
       console.error("produccion_diaria_larga.csv error:", e);
@@ -381,9 +385,9 @@
       const hidroRows = await loadCSV(FILES.hidro);
       HIDRO = hidroRows.map(r => ({
         date: r.date,
-        serie: r.serie,
-        variable: r.variable,
-        valor: r.valor
+        serie: r.series,
+        variable: r.metric,
+        value: r.value
       }));
     } catch (e) {
       console.error("hidrologia_diaria_larga.csv error:", e);

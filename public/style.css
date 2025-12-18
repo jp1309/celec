@@ -103,7 +103,7 @@ select:focus{
 }
 
 /* Years – keep compact */
-.years #yearSelect{
+.years #selYears{
   max-height:120px;
 }
 
