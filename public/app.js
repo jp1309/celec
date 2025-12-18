@@ -267,8 +267,6 @@
       });
 
       if (displayRows.length > 0) {
-        const color = colors[i % colors.length];
-
         // Main Trace (Live Data)
         traces.push({
           type: "scatter",
