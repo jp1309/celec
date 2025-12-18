@@ -168,12 +168,12 @@ def build_produccion_diaria_larga() -> pd.DataFrame:
 
 
 # ---------------- Hydrology ----------------
-HIDRO_PLANTS: Dict[str, Tuple[str, str]] = {
+HIDRO_PLANTS: Dict[str, Tuple[str, str | None]] = {
+    "Cuenca del Rio Paute": ("CaudalCuencaPaute", None),
     "Molino": ("CaudalMol", "CotaMol"),
     "Mazar": ("CaudalMaz", "CotaMaz"),
     "Sopladora": ("CaudalSop", "CotaSop"),
     "Minas San Francisco": ("CaudalMsf", "CotaMsf"),
-    "CSR": ("CaudalCsr", "CotaCsr"),
 }
 
 
@@ -189,7 +189,9 @@ def build_hidrologia_diaria_larga() -> pd.DataFrame:
 
         expected = ["Fecha"]
         for caudal_col, cota_col in HIDRO_PLANTS.values():
-            expected += [caudal_col, cota_col]
+            expected.append(caudal_col)
+            if cota_col:
+                expected.append(cota_col)
         df = _ensure_cols(df, expected)
 
         num_cols = [c for c in expected if c != "Fecha"]
@@ -205,7 +207,7 @@ def build_hidrologia_diaria_larga() -> pd.DataFrame:
             mmdd = _mmdd_label(dt)
 
             for plant, (caudal_col, cota_col) in HIDRO_PLANTS.items():
-                vq = r[caudal_col]
+                vq = r.get(caudal_col, pd.NA)
                 if not pd.isna(vq):
                     rows.append({
                         "date": dt.date().isoformat(),
@@ -217,18 +219,20 @@ def build_hidrologia_diaria_larga() -> pd.DataFrame:
                         "value": float(vq),
                         "is_placeholder": int(r["is_placeholder"]),
                     })
-                vz = r[cota_col]
-                if not pd.isna(vz):
-                    rows.append({
-                        "date": dt.date().isoformat(),
-                        "year": year,
-                        "doy365": doy,
-                        "mmdd": mmdd,
-                        "series": plant,
-                        "metric": "Cota (msnm)",
-                        "value": float(vz),
-                        "is_placeholder": int(r["is_placeholder"]),
-                    })
+                
+                if cota_col:
+                    vz = r.get(cota_col, pd.NA)
+                    if not pd.isna(vz):
+                        rows.append({
+                            "date": dt.date().isoformat(),
+                            "year": year,
+                            "doy365": doy,
+                            "mmdd": mmdd,
+                            "series": plant,
+                            "metric": "Cota (msnm)",
+                            "value": float(vz),
+                            "is_placeholder": int(r["is_placeholder"]),
+                        })
 
     out = pd.DataFrame(rows)
     if out.empty:

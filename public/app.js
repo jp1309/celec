@@ -25,6 +25,8 @@
   // Production Controls
   const selProdCentral = $("prodCentral");
   const selProdYears = $("prodYears");
+  const selProdStartMonth = $("prodStartMonth");
+  const selProdEndMonth = $("prodEndMonth");
   const plotProdLine = $("plotProdLine");
   const plotProdPie = $("plotProdPie");
 
@@ -32,6 +34,8 @@
   const selHidroCentral = $("hidroCentral");
   const selHidroVariable = $("hidroVariable");
   const selHidroYears = $("hidroYears");
+  const selHidroStartMonth = $("hidroStartMonth");
+  const selHidroEndMonth = $("hidroEndMonth");
   const plotHidroMain = $("plotHidroMain");
 
   // ---- State ----
@@ -118,12 +122,18 @@
   function drawProduction() {
     if (!PROD_DATA || !META) return;
 
-    const serie = selProdCentral.value;
-    const years = getSelectedValues(selProdYears).map(Number);
-    const yearSet = new Set(years);
+    const startMonth = parseInt(selProdStartMonth.value);
+    const endMonth = parseInt(selProdEndMonth.value);
+
+    // Filter Rows by Month Range
+    const filterByMonth = (r) => {
+      const m = parseInt(r.date.slice(5, 7));
+      return m >= startMonth && m <= endMonth;
+    };
 
     // 1. Line Chart (Full Date X-Axis) - Convert to GWh
-    const lineRows = PROD_DATA.filter(r => r.serie === serie && yearSet.has(Number(r.date.slice(0, 4))));
+    const filteredProdData = PROD_DATA.filter(filterByMonth);
+    const lineRows = filteredProdData.filter(r => r.serie === serie && yearSet.has(Number(r.date.slice(0, 4))));
 
     // Group for different colors by year in line chart
     const tracesLine = [];
@@ -147,15 +157,14 @@
       });
     });
 
-    Plotly.react(plotProdLine, tracesLine, baseLayout(`${serie} - Evolución`, "Generación (GWh)", true), { responsive: true, displayModeBar: false });
+    Plotly.react(plotProdLine, tracesLine, baseLayout(`${serie} - Evolución (GWh)`, "Generación (GWh)", true), { responsive: true, displayModeBar: false });
 
     // 2. Pie Chart (Comparison of plants for selected range)
-    // We calculate total by plant excluding the sum series "CSR..."
     const pieDataMap = new Map();
     const plantsToInclude = META.produccion.series.filter(s => !s.includes("CSR") && !s.includes("+"));
 
     plantsToInclude.forEach(p => {
-      const total = PROD_DATA
+      const total = filteredProdData
         .filter(r => r.serie === p && yearSet.has(Number(r.date.slice(0, 4))))
         .reduce((acc, r) => acc + (parseNumber(r.value) || 0), 0);
       if (total > 0) pieDataMap.set(p, total / 1000); // MWh to GWh
@@ -188,9 +197,16 @@
     const serie = selHidroCentral.value;
     const variable = selHidroVariable.value;
     const years = getSelectedValues(selHidroYears).map(Number);
+    const startMonth = parseInt(selHidroStartMonth.value);
+    const endMonth = parseInt(selHidroEndMonth.value);
     if (!serie || years.length === 0) return;
 
-    const rows = HIDRO_DATA.filter(r => r.serie === serie && r.variable === variable);
+    const filterByMonth = (r) => {
+      const m = parseInt(r.date.slice(5, 7));
+      return m >= startMonth && m <= endMonth;
+    };
+
+    const rows = HIDRO_DATA.filter(r => r.serie === serie && r.variable === variable && filterByMonth(r));
 
     const traces = [];
     const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
@@ -311,9 +327,28 @@
       // Listeners
       selProdCentral.addEventListener("change", drawProduction);
       selProdYears.addEventListener("change", drawProduction);
-      selHidroCentral.addEventListener("change", drawHidrology);
+      selProdStartMonth.addEventListener("change", drawProduction);
+      selProdEndMonth.addEventListener("change", drawProduction);
+      selHidroCentral.addEventListener("change", () => {
+        // Cuenca del Rio Paute doesn't have Cota
+        const variable = selHidroVariable.value;
+        const isPaute = selHidroCentral.value.includes("Paute");
+        const cotaOpt = Array.from(selHidroVariable.options).find(o => o.value.includes("Cota"));
+
+        if (isPaute) {
+          if (cotaOpt) cotaOpt.disabled = true;
+          if (variable.includes("Cota")) {
+            selHidroVariable.value = "Caudal (m³/s)";
+          }
+        } else {
+          if (cotaOpt) cotaOpt.disabled = false;
+        }
+        drawHidrology();
+      });
       selHidroVariable.addEventListener("change", drawHidrology);
       selHidroYears.addEventListener("change", drawHidrology);
+      selHidroStartMonth.addEventListener("change", drawHidrology);
+      selHidroEndMonth.addEventListener("change", drawHidrology);
 
       drawProduction();
     } catch (e) {

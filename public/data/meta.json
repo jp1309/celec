@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2025-12-18T13:22:31.301835+00:00",
+  "generated_at_utc": "2025-12-18T14:04:05.703350+00:00",
   "produccion": {
     "rows": 10880,
     "years": [
@@ -22,7 +22,7 @@
     ]
   },
   "hidrologia": {
-    "rows": 17356,
+    "rows": 19431,
     "years": [
       2020,
       2021,
@@ -32,6 +32,7 @@
       2025
     ],
     "series": [
+      "Cuenca del Rio Paute",
       "Mazar",
       "Minas San Francisco",
       "Molino",
