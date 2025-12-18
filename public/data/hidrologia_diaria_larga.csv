@@ -4271,86 +4271,86 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2025-12-19,2025,353,19-dic,Sopladora,Cota (msnm),0.0,0
 2025-12-19,2025,353,19-dic,Minas San Francisco,Caudal (m³/s),0.0,0
 2025-12-19,2025,353,19-dic,Minas San Francisco,Cota (msnm),0.0,0
-2025-12-18,2025,352,18-dic,Molino,Caudal (m³/s),0.0,0
+2025-12-18,2025,352,18-dic,Molino,Caudal (m³/s),77.647319875,0
 2025-12-18,2025,352,18-dic,Molino,Cota (msnm),0.0,0
-2025-12-18,2025,352,18-dic,Mazar,Caudal (m³/s),0.0,0
+2025-12-18,2025,352,18-dic,Mazar,Caudal (m³/s),30.0598064575,0
 2025-12-18,2025,352,18-dic,Mazar,Cota (msnm),0.0,0
-2025-12-18,2025,352,18-dic,Sopladora,Caudal (m³/s),0.0,0
+2025-12-18,2025,352,18-dic,Sopladora,Caudal (m³/s),63.3951853375,0
 2025-12-18,2025,352,18-dic,Sopladora,Cota (msnm),0.0,0
-2025-12-18,2025,352,18-dic,Minas San Francisco,Caudal (m³/s),0.0,0
+2025-12-18,2025,352,18-dic,Minas San Francisco,Caudal (m³/s),16.917046075,0
 2025-12-18,2025,352,18-dic,Minas San Francisco,Cota (msnm),0.0,0
-2025-12-17,2025,351,17-dic,Molino,Caudal (m³/s),0.0,0
-2025-12-17,2025,351,17-dic,Molino,Cota (msnm),0.0,0
-2025-12-17,2025,351,17-dic,Mazar,Caudal (m³/s),0.0,0
-2025-12-17,2025,351,17-dic,Mazar,Cota (msnm),0.0,0
-2025-12-17,2025,351,17-dic,Sopladora,Caudal (m³/s),0.0,0
-2025-12-17,2025,351,17-dic,Sopladora,Cota (msnm),0.0,0
-2025-12-17,2025,351,17-dic,Minas San Francisco,Caudal (m³/s),0.0,0
-2025-12-17,2025,351,17-dic,Minas San Francisco,Cota (msnm),0.0,0
-2025-12-16,2025,350,16-dic,Molino,Caudal (m³/s),0.0,0
-2025-12-16,2025,350,16-dic,Molino,Cota (msnm),0.0,0
-2025-12-16,2025,350,16-dic,Mazar,Caudal (m³/s),0.0,0
-2025-12-16,2025,350,16-dic,Mazar,Cota (msnm),0.0,0
-2025-12-16,2025,350,16-dic,Sopladora,Caudal (m³/s),0.0,0
-2025-12-16,2025,350,16-dic,Sopladora,Cota (msnm),0.0,0
-2025-12-16,2025,350,16-dic,Minas San Francisco,Caudal (m³/s),0.0,0
-2025-12-16,2025,350,16-dic,Minas San Francisco,Cota (msnm),0.0,0
-2025-12-15,2025,349,15-dic,Molino,Caudal (m³/s),0.0,0
-2025-12-15,2025,349,15-dic,Molino,Cota (msnm),0.0,0
-2025-12-15,2025,349,15-dic,Mazar,Caudal (m³/s),0.0,0
-2025-12-15,2025,349,15-dic,Mazar,Cota (msnm),0.0,0
-2025-12-15,2025,349,15-dic,Sopladora,Caudal (m³/s),0.0,0
-2025-12-15,2025,349,15-dic,Sopladora,Cota (msnm),0.0,0
-2025-12-15,2025,349,15-dic,Minas San Francisco,Caudal (m³/s),0.0,0
-2025-12-15,2025,349,15-dic,Minas San Francisco,Cota (msnm),0.0,0
-2025-12-14,2025,348,14-dic,Molino,Caudal (m³/s),0.0,0
-2025-12-14,2025,348,14-dic,Molino,Cota (msnm),0.0,0
-2025-12-14,2025,348,14-dic,Mazar,Caudal (m³/s),0.0,0
-2025-12-14,2025,348,14-dic,Mazar,Cota (msnm),0.0,0
-2025-12-14,2025,348,14-dic,Sopladora,Caudal (m³/s),0.0,0
-2025-12-14,2025,348,14-dic,Sopladora,Cota (msnm),0.0,0
-2025-12-14,2025,348,14-dic,Minas San Francisco,Caudal (m³/s),0.0,0
-2025-12-14,2025,348,14-dic,Minas San Francisco,Cota (msnm),0.0,0
-2025-12-13,2025,347,13-dic,Molino,Caudal (m³/s),0.0,0
-2025-12-13,2025,347,13-dic,Molino,Cota (msnm),0.0,0
-2025-12-13,2025,347,13-dic,Mazar,Caudal (m³/s),0.0,0
-2025-12-13,2025,347,13-dic,Mazar,Cota (msnm),0.0,0
-2025-12-13,2025,347,13-dic,Sopladora,Caudal (m³/s),0.0,0
-2025-12-13,2025,347,13-dic,Sopladora,Cota (msnm),0.0,0
-2025-12-13,2025,347,13-dic,Minas San Francisco,Caudal (m³/s),0.0,0
-2025-12-13,2025,347,13-dic,Minas San Francisco,Cota (msnm),0.0,0
-2025-12-12,2025,346,12-dic,Molino,Caudal (m³/s),0.0,0
-2025-12-12,2025,346,12-dic,Molino,Cota (msnm),0.0,0
-2025-12-12,2025,346,12-dic,Mazar,Caudal (m³/s),0.0,0
-2025-12-12,2025,346,12-dic,Mazar,Cota (msnm),0.0,0
-2025-12-12,2025,346,12-dic,Sopladora,Caudal (m³/s),0.0,0
-2025-12-12,2025,346,12-dic,Sopladora,Cota (msnm),0.0,0
-2025-12-12,2025,346,12-dic,Minas San Francisco,Caudal (m³/s),0.0,0
-2025-12-12,2025,346,12-dic,Minas San Francisco,Cota (msnm),0.0,0
-2025-12-11,2025,345,11-dic,Molino,Caudal (m³/s),0.0,0
-2025-12-11,2025,345,11-dic,Molino,Cota (msnm),0.0,0
-2025-12-11,2025,345,11-dic,Mazar,Caudal (m³/s),0.0,0
-2025-12-11,2025,345,11-dic,Mazar,Cota (msnm),0.0,0
-2025-12-11,2025,345,11-dic,Sopladora,Caudal (m³/s),0.0,0
-2025-12-11,2025,345,11-dic,Sopladora,Cota (msnm),0.0,0
-2025-12-11,2025,345,11-dic,Minas San Francisco,Caudal (m³/s),0.0,0
-2025-12-11,2025,345,11-dic,Minas San Francisco,Cota (msnm),0.0,0
-2025-12-10,2025,344,10-dic,Molino,Caudal (m³/s),0.0,0
-2025-12-10,2025,344,10-dic,Molino,Cota (msnm),0.0,0
-2025-12-10,2025,344,10-dic,Mazar,Caudal (m³/s),0.0,0
-2025-12-10,2025,344,10-dic,Mazar,Cota (msnm),0.0,0
-2025-12-10,2025,344,10-dic,Sopladora,Caudal (m³/s),0.0,0
-2025-12-10,2025,344,10-dic,Sopladora,Cota (msnm),0.0,0
-2025-12-10,2025,344,10-dic,Minas San Francisco,Caudal (m³/s),0.0,0
-2025-12-10,2025,344,10-dic,Minas San Francisco,Cota (msnm),0.0,0
-2025-12-09,2025,343,09-dic,Molino,Caudal (m³/s),26.478976454545453,0
-2025-12-09,2025,343,09-dic,Molino,Cota (msnm),0.0,0
-2025-12-09,2025,343,09-dic,Mazar,Caudal (m³/s),34.50496149818182,0
-2025-12-09,2025,343,09-dic,Mazar,Cota (msnm),0.0,0
-2025-12-09,2025,343,09-dic,Sopladora,Caudal (m³/s),54.88787359090909,0
-2025-12-09,2025,343,09-dic,Sopladora,Cota (msnm),0.0,0
-2025-12-09,2025,343,09-dic,Minas San Francisco,Caudal (m³/s),16.989960754545454,0
-2025-12-09,2025,343,09-dic,Minas San Francisco,Cota (msnm),0.0,0
+2025-12-17,2025,351,17-dic,Molino,Caudal (m³/s),110.5794135,0
+2025-12-17,2025,351,17-dic,Molino,Cota (msnm),1986.1051025,0
+2025-12-17,2025,351,17-dic,Mazar,Caudal (m³/s),22.33139716875,0
+2025-12-17,2025,351,17-dic,Mazar,Cota (msnm),2147.57,0
+2025-12-17,2025,351,17-dic,Sopladora,Caudal (m³/s),109.4481966875,0
+2025-12-17,2025,351,17-dic,Sopladora,Cota (msnm),1315.6525879,0
+2025-12-17,2025,351,17-dic,Minas San Francisco,Caudal (m³/s),14.948398925,0
+2025-12-17,2025,351,17-dic,Minas San Francisco,Cota (msnm),789.33,0
+2025-12-16,2025,350,16-dic,Molino,Caudal (m³/s),95.67464208333334,0
+2025-12-16,2025,350,16-dic,Molino,Cota (msnm),1986.0340576,0
+2025-12-16,2025,350,16-dic,Mazar,Caudal (m³/s),25.19758113375,0
+2025-12-16,2025,350,16-dic,Mazar,Cota (msnm),2148.33,0
+2025-12-16,2025,350,16-dic,Sopladora,Caudal (m³/s),97.74704308333334,0
+2025-12-16,2025,350,16-dic,Sopladora,Cota (msnm),1316.2510986,0
+2025-12-16,2025,350,16-dic,Minas San Francisco,Caudal (m³/s),15.839474133333333,0
+2025-12-16,2025,350,16-dic,Minas San Francisco,Cota (msnm),789.39,0
+2025-12-15,2025,349,15-dic,Molino,Caudal (m³/s),97.57289833333331,0
+2025-12-15,2025,349,15-dic,Molino,Cota (msnm),1986.2192383,0
+2025-12-15,2025,349,15-dic,Mazar,Caudal (m³/s),23.3605682875,0
+2025-12-15,2025,349,15-dic,Mazar,Cota (msnm),2148.81,0
+2025-12-15,2025,349,15-dic,Sopladora,Caudal (m³/s),95.71740220833334,0
+2025-12-15,2025,349,15-dic,Sopladora,Cota (msnm),1315.1433105,0
+2025-12-15,2025,349,15-dic,Minas San Francisco,Caudal (m³/s),15.8230645875,0
+2025-12-15,2025,349,15-dic,Minas San Francisco,Cota (msnm),789.76,0
+2025-12-14,2025,348,14-dic,Molino,Caudal (m³/s),64.099466,0
+2025-12-14,2025,348,14-dic,Molino,Cota (msnm),1986.251709,0
+2025-12-14,2025,348,14-dic,Mazar,Caudal (m³/s),23.66451889583333,0
+2025-12-14,2025,348,14-dic,Mazar,Cota (msnm),2149.38,0
+2025-12-14,2025,348,14-dic,Sopladora,Caudal (m³/s),54.72723742916666,0
+2025-12-14,2025,348,14-dic,Sopladora,Cota (msnm),1315.0731201,0
+2025-12-14,2025,348,14-dic,Minas San Francisco,Caudal (m³/s),14.114135275,0
+2025-12-14,2025,348,14-dic,Minas San Francisco,Cota (msnm),790.03,0
+2025-12-13,2025,347,13-dic,Molino,Caudal (m³/s),50.56585954166667,0
+2025-12-13,2025,347,13-dic,Molino,Cota (msnm),1985.9104004,0
+2025-12-13,2025,347,13-dic,Mazar,Caudal (m³/s),24.49471441375,0
+2025-12-13,2025,347,13-dic,Mazar,Cota (msnm),2149.65,0
+2025-12-13,2025,347,13-dic,Sopladora,Caudal (m³/s),57.2408808625,0
+2025-12-13,2025,347,13-dic,Sopladora,Cota (msnm),1314.5638428,0
+2025-12-13,2025,347,13-dic,Minas San Francisco,Caudal (m³/s),14.222615741666669,0
+2025-12-13,2025,347,13-dic,Minas San Francisco,Cota (msnm),789.76,0
+2025-12-12,2025,346,12-dic,Molino,Caudal (m³/s),68.06574695833334,0
+2025-12-12,2025,346,12-dic,Molino,Cota (msnm),1986.0726318,0
+2025-12-12,2025,346,12-dic,Mazar,Caudal (m³/s),23.669859197916665,0
+2025-12-12,2025,346,12-dic,Mazar,Cota (msnm),2149.74,0
+2025-12-12,2025,346,12-dic,Sopladora,Caudal (m³/s),72.01232928333333,0
+2025-12-12,2025,346,12-dic,Sopladora,Cota (msnm),1315.9844971,0
+2025-12-12,2025,346,12-dic,Minas San Francisco,Caudal (m³/s),13.573537195833334,0
+2025-12-12,2025,346,12-dic,Minas San Francisco,Cota (msnm),788.93,0
+2025-12-11,2025,345,11-dic,Molino,Caudal (m³/s),69.532878625,0
+2025-12-11,2025,345,11-dic,Molino,Cota (msnm),1986.258667,0
+2025-12-11,2025,345,11-dic,Mazar,Caudal (m³/s),23.321836921666662,0
+2025-12-11,2025,345,11-dic,Mazar,Cota (msnm),2150.0,0
+2025-12-11,2025,345,11-dic,Sopladora,Caudal (m³/s),79.752651275,0
+2025-12-11,2025,345,11-dic,Sopladora,Cota (msnm),1315.0998535,0
+2025-12-11,2025,345,11-dic,Minas San Francisco,Caudal (m³/s),14.3491254625,0
+2025-12-11,2025,345,11-dic,Minas San Francisco,Cota (msnm),788.43,0
+2025-12-10,2025,344,10-dic,Molino,Caudal (m³/s),57.66753495833333,0
+2025-12-10,2025,344,10-dic,Molino,Cota (msnm),1986.6368408,0
+2025-12-10,2025,344,10-dic,Mazar,Caudal (m³/s),25.715629266666667,0
+2025-12-10,2025,344,10-dic,Mazar,Cota (msnm),2150.27,0
+2025-12-10,2025,344,10-dic,Sopladora,Caudal (m³/s),77.74992835,0
+2025-12-10,2025,344,10-dic,Sopladora,Cota (msnm),1315.1802979,0
+2025-12-10,2025,344,10-dic,Minas San Francisco,Caudal (m³/s),13.9707997625,0
+2025-12-10,2025,344,10-dic,Minas San Francisco,Cota (msnm),787.77,0
+2025-12-09,2025,343,09-dic,Molino,Caudal (m³/s),69.978096,0
+2025-12-09,2025,343,09-dic,Molino,Cota (msnm),1987.3598633,0
+2025-12-09,2025,343,09-dic,Mazar,Caudal (m³/s),27.696002252916667,0
+2025-12-09,2025,343,09-dic,Mazar,Cota (msnm),2150.43,0
+2025-12-09,2025,343,09-dic,Sopladora,Caudal (m³/s),86.4231478875,0
+2025-12-09,2025,343,09-dic,Sopladora,Cota (msnm),1315.0185547,0
+2025-12-09,2025,343,09-dic,Minas San Francisco,Caudal (m³/s),15.499261104166669,0
+2025-12-09,2025,343,09-dic,Minas San Francisco,Cota (msnm),787.81,0
 2025-12-08,2025,342,08-dic,Molino,Caudal (m³/s),93.63577045833334,0
 2025-12-08,2025,342,08-dic,Molino,Cota (msnm),1987.9117432,0
 2025-12-08,2025,342,08-dic,Mazar,Caudal (m³/s),26.007448605416663,0
