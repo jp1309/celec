@@ -1,74 +1,46 @@
-/* CELEC · Hidroeléctrica dashboard (static, GitHub Pages)
-   - Expects files in: public/data/
-     - produccion_diaria_larga.csv  (date, serie, energia_mwh)
-     - hidrologia_diaria_larga.csv  (date, serie, variable, valor)
-     - meta.json
+/* CELEC · Dashboard Energético
+   - Dos módulos independientes: Producción e Hidrología
+   - Comparativa de años (1 Ene - 31 Dic)
 */
 
 (function () {
   "use strict";
 
-  const DATA_BASE = "data/"; // relative to index.html (served from /celec/)
+  const DATA_BASE = "data/";
   const FILES = {
     meta: DATA_BASE + "meta.json",
     prod: DATA_BASE + "produccion_diaria_larga.csv",
     hidro: DATA_BASE + "hidrologia_diaria_larga.csv",
   };
 
-  // ---- DOM ----
+  // ---- DOM References ----
   const $ = (id) => document.getElementById(id);
-
-  const selModule = $("selModule");
-  const selCentral = $("selCentral");
-  const selYears = $("selYears");
-  const selFrom = $("selFrom");
-  const selTo = $("selTo");
-  const plotDiv = $("plot");
   const metaStatus = $("metaStatus");
 
-  const btnFull = $("btnFull");
-  const btnQ1 = $("btnQ1");
-  const btnQ2 = $("btnQ2");
-  const btnQ3 = $("btnQ3");
-  const btnQ4 = $("btnQ4");
+  // Production Controls
+  const selProdCentral = $("prodCentral");
+  const selProdYears = $("prodYears");
+  const plotProd = $("plotProd");
+
+  // Hydrology Controls
+  const selHidroCentral = $("hidroCentral");
+  const selHidroYears = $("hidroYears");
+  const plotHidro = $("plotHidro");
 
   // ---- State ----
   let META = null;
-  let PROD = null;   // array of {date, serie, energia_mwh}
-  let HIDRO = null;  // array of {date, serie, variable, valor}
+  let PROD_DATA = null;
+  let HIDRO_DATA = null;
 
   // ---- Helpers ----
   function pad2(n) { return String(n).padStart(2, "0"); }
 
-  function mmddFromISO(iso) {
-    // iso: YYYY-MM-DD
-    return iso.slice(5, 10); // MM-DD
-  }
-
   function doyFromISO(iso) {
-    // returns 1..366
     const d = new Date(iso + "T00:00:00Z");
     const year = d.getUTCFullYear();
     const start = new Date(Date.UTC(year, 0, 1));
     const diff = d - start;
     return Math.floor(diff / 86400000) + 1;
-  }
-
-  function inRangeMMDD(mmdd, fromMMDD, toMMDD) {
-    // Inclusive bounds. Handles wrap (e.g., 11-01..03-31)
-    if (!fromMMDD || !toMMDD) return true;
-    if (fromMMDD <= toMMDD) return (mmdd >= fromMMDD && mmdd <= toMMDD);
-    // wrap across year end
-    return (mmdd >= fromMMDD || mmdd <= toMMDD);
-  }
-
-  function uniq(arr) {
-    return Array.from(new Set(arr));
-  }
-
-  function setMetaText(msg) {
-    if (!metaStatus) return;
-    metaStatus.textContent = msg || "";
   }
 
   function clearSelect(sel) {
@@ -82,49 +54,14 @@
     sel.appendChild(o);
   }
 
+  function getSelectedValues(sel) {
+    return Array.from(sel.options).filter(opt => opt.selected).map(opt => opt.value);
+  }
+
   function setSelectedMulti(sel, valuesSet) {
     for (const opt of sel.options) {
       opt.selected = valuesSet.has(Number(opt.value)) || valuesSet.has(opt.value);
     }
-  }
-
-  function getSelectedYears() {
-    const yrs = [];
-    for (const opt of selYears.options) {
-      if (opt.selected) yrs.push(Number(opt.value));
-    }
-    return yrs;
-  }
-
-  function buildMonthDayOptions() {
-    // Values are MM-DD. Labels are "DD-mmm" in Spanish short.
-    const months = [
-      ["ene", 31], ["feb", 29], ["mar", 31], ["abr", 30], ["may", 31], ["jun", 30],
-      ["jul", 31], ["ago", 31], ["sep", 30], ["oct", 31], ["nov", 30], ["dic", 31]
-    ];
-
-    clearSelect(selFrom);
-    clearSelect(selTo);
-
-    for (let m = 1; m <= 12; m++) {
-      const [abbr, days] = months[m - 1];
-      for (let d = 1; d <= days; d++) {
-        const mmdd = `${pad2(m)}-${pad2(d)}`;
-        const lbl = `${pad2(d)}-${abbr}`;
-        addOption(selFrom, mmdd, lbl);
-        addOption(selTo, mmdd, lbl);
-      }
-    }
-
-    // default: full year
-    selFrom.value = "01-01";
-    selTo.value = "12-31";
-  }
-
-  function setQuickRange(from, to) {
-    selFrom.value = from;
-    selTo.value = to;
-    scheduleRedraw();
   }
 
   function parseNumber(x) {
@@ -132,14 +69,6 @@
     const s = String(x).trim().replace(",", ".");
     const v = Number(s);
     return Number.isFinite(v) ? v : NaN;
-  }
-
-  // ---- Data load ----
-  function loadJSON(url) {
-    return fetch(url, { cache: "no-cache" }).then((r) => {
-      if (!r.ok) throw new Error(`HTTP ${r.status} ${url}`);
-      return r.json();
-    });
   }
 
   async function loadCSV(url) {
@@ -159,249 +88,204 @@
     });
   }
 
-  // ---- UI init ----
-  function initSelectors() {
-    // Module options
-    clearSelect(selModule);
-    addOption(selModule, "produccion", "Producción");
-    addOption(selModule, "hidrologia", "Hidrología");
-    selModule.value = "produccion";
+  // ---- Redraw Logic ----
+  function drawProduction() {
+    if (!PROD_DATA || !META) return;
 
-    buildMonthDayOptions();
-
-    // Quick buttons
-    btnFull && btnFull.addEventListener("click", () => setQuickRange("01-01", "12-31"));
-    btnQ1 && btnQ1.addEventListener("click", () => setQuickRange("01-01", "03-31"));
-    btnQ2 && btnQ2.addEventListener("click", () => setQuickRange("04-01", "06-30"));
-    btnQ3 && btnQ3.addEventListener("click", () => setQuickRange("07-01", "09-30"));
-    btnQ4 && btnQ4.addEventListener("click", () => setQuickRange("10-01", "12-31"));
-
-    // Change listeners
-    selModule.addEventListener("change", () => { refreshOptionsForModule(); scheduleRedraw(); });
-    selCentral.addEventListener("change", scheduleRedraw);
-    selYears.addEventListener("change", scheduleRedraw);
-    selFrom.addEventListener("change", scheduleRedraw);
-    selTo.addEventListener("change", scheduleRedraw);
-  }
-
-  function refreshOptionsForModule() {
-    const mod = selModule.value;
-
-    // Years
-    clearSelect(selYears);
-    const years = (mod === "produccion" ? META.produccion.years : META.hidrologia.years) || [];
-    years.forEach((y) => addOption(selYears, String(y), String(y)));
-
-    // Default select: last 2 years (or all if <=2)
-    const sorted = [...years].sort((a, b) => a - b);
-    const last = sorted.slice(Math.max(0, sorted.length - 2));
-    setSelectedMulti(selYears, new Set(last));
-
-    // Central (serie)
-    clearSelect(selCentral);
-    const series = (mod === "produccion" ? META.produccion.series : META.hidrologia.series) || [];
-    series.forEach((s) => addOption(selCentral, s, s));
-    selCentral.value = series[0] || "";
-
-    // Show/hide CSR note based on selection exists in HTML already, leave as is.
-  }
-
-  // ---- Plot ----
-  let redrawTimer = null;
-  function scheduleRedraw() {
-    if (redrawTimer) window.clearTimeout(redrawTimer);
-    redrawTimer = window.setTimeout(draw, 50);
-  }
-
-  function draw() {
-    if (!PROD || !HIDRO || !META) return;
-
-    const mod = selModule.value;
-    const serie = selCentral.value;
-    const years = getSelectedYears();
-    const from = selFrom.value; // MM-DD
-    const to = selTo.value;
+    const serie = selProdCentral.value;
+    const years = getSelectedValues(selProdYears).map(Number);
 
     if (!serie || years.length === 0) {
-      Plotly.react(plotDiv, [], {
-        title: { text: "Seleccione una central y al menos un año" },
-        paper_bgcolor: "rgba(0,0,0,0)",
-        plot_bgcolor: "rgba(0,0,0,0)"
-      }, { displayModeBar: true, responsive: true });
+      Plotly.react(plotProd, [], baseLayout("Producción: Seleccione Central y Años", "Energía (MWh)"));
       return;
     }
 
-    if (mod === "produccion") {
-      const rows = PROD.filter(r => r.serie === serie);
-      const traces = buildYearTraces(rows, years, from, to, "value", "Energía (MWh)", null);
-      const yTitle = "Energía (MWh)";
-      const layout = baseLayout(`Producción. ${serie}`, yTitle);
-      Plotly.react(plotDiv, traces, layout, { displayModeBar: true, responsive: true });
-    } else {
-      const rows = HIDRO.filter(r => r.serie === serie);
-      // We'll plot Caudal on y, Cota on y2 if present
-      const caudalVar = "Caudal (m³/s)";
-      const cotaVar = "Cota (msnm)";
+    const rows = PROD_DATA.filter(r => r.serie === serie);
+    const traces = buildYearTraces(rows, years, "value", "Energía (MWh)");
 
-      const rowsC = rows.filter(r => r.variable === caudalVar);
-      const rowsH = rows.filter(r => r.variable === cotaVar);
-
-      const traces = [];
-      traces.push(...buildYearTraces(rowsC, years, from, to, "value", caudalVar, null));
-
-      if (rowsH.length > 0) {
-        const t2 = buildYearTraces(rowsH, years, from, to, "value", cotaVar, "y2");
-        // make y2 lines dashed so they visually separate
-        for (const t of t2) t.line = Object.assign({}, t.line || {}, { dash: "dot" });
-        traces.push(...t2);
-      }
-
-      const layout = baseLayout(`Hidrología. ${serie}`, caudalVar);
-      if (rowsH.length > 0) {
-        layout.yaxis2 = {
-          title: cotaVar,
-          overlaying: "y",
-          side: "right",
-          showgrid: false,
-          zeroline: false,
-          tickfont: { color: "#9fb0c0" },
-          titlefont: { color: "#9fb0c0" }
-        };
-      }
-      Plotly.react(plotDiv, traces, layout, { displayModeBar: true, responsive: true });
-    }
+    Plotly.react(plotProd, traces, baseLayout(`Producción · ${serie}`, "Energía (MWh)"), { responsive: true, displayModeBar: false });
   }
 
-  function buildYearTraces(rows, years, from, to, valueCol, labelPrefix, yaxisName) {
-    // rows: objects that include date (YYYY-MM-DD) and valueCol
-    const yearSet = new Set(years.map(Number));
-    const maxYear = Math.max.apply(null, years.map(Number));
+  function drawHidrology() {
+    if (!HIDRO_DATA || !META) return;
 
-    // group by year
-    const byYear = new Map();
-    for (const r of rows) {
-      const date = r.date;
-      if (!date || date.length < 10) continue;
-      const y = Number(date.slice(0, 4));
-      if (!yearSet.has(y)) continue;
+    const serie = selHidroCentral.value;
+    const years = getSelectedValues(selHidroYears).map(Number);
 
-      const mmdd = mmddFromISO(date);
-      if (!inRangeMMDD(mmdd, from, to)) continue;
-
-      const v = parseNumber(r[valueCol]);
-      if (!Number.isFinite(v)) continue;
-
-      const doy = doyFromISO(date);
-      if (!byYear.has(y)) byYear.set(y, []);
-      byYear.get(y).push({ doy, v, date });
+    if (!serie || years.length === 0) {
+      Plotly.react(plotHidro, [], baseLayout("Hidrología: Seleccione Central y Años", "Caudal (m³/s)"));
+      return;
     }
 
-    // build traces, sorted by year
-    const traces = [];
-    const yearsSorted = Array.from(byYear.keys()).sort((a, b) => a - b);
+    const rows = HIDRO_DATA.filter(r => r.serie === serie);
+    const caudalVar = "Caudal (m³/s)";
+    const cotaVar = "Cota (msnm)";
 
-    for (const y of yearsSorted) {
+    const rowsC = rows.filter(r => r.variable === caudalVar);
+    const rowsH = rows.filter(r => r.variable === cotaVar);
+
+    const traces = [];
+    traces.push(...buildYearTraces(rowsC, years, "value", caudalVar));
+
+    if (rowsH.length > 0) {
+      const tracesH = buildYearTraces(rowsH, years, "value", cotaVar, "y2");
+      for (const t of tracesH) {
+        t.line = Object.assign({}, t.line || {}, { dash: "dot", width: 1.5 });
+        t.opacity = 0.6;
+      }
+      traces.push(...tracesH);
+    }
+
+    const layout = baseLayout(`Hidrología · ${serie}`, caudalVar);
+    if (rowsH.length > 0) {
+      layout.yaxis2 = {
+        title: cotaVar,
+        overlaying: "y",
+        side: "right",
+        showgrid: false,
+        zeroline: false,
+        tickfont: { color: "#94a3b8" },
+        titlefont: { color: "#94a3b8" }
+      };
+    }
+
+    Plotly.react(plotHidro, traces, layout, { responsive: true, displayModeBar: false });
+  }
+
+  function buildYearTraces(rows, years, valueCol, labelPrefix, yaxisName = "y") {
+    const yearSet = new Set(years);
+    const maxYearSelected = Math.max(...years);
+
+    const byYear = new Map();
+    for (const r of rows) {
+      const y = Number(r.date.slice(0, 4));
+      if (!yearSet.has(y)) continue;
+
+      const v = parseNumber(r[valueCol]);
+      if (isNaN(v)) continue;
+
+      const doy = doyFromISO(r.date);
+      if (!byYear.has(y)) byYear.set(y, []);
+      byYear.get(y).push({ doy, v, date: r.date });
+    }
+
+    const traces = [];
+    const sortedYears = Array.from(byYear.keys()).sort((a, b) => a - b);
+
+    // Color palette for multiple years
+    const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
+
+    sortedYears.forEach((y, i) => {
       const pts = byYear.get(y).sort((a, b) => a.doy - b.doy);
-      const x = pts.map(p => p.doy);
-      const yv = pts.map(p => p.v);
-      const text = pts.map(p => p.date);
+      const color = colors[i % colors.length];
 
       traces.push({
         type: "scatter",
         mode: "lines",
         name: String(y),
-        x,
-        y: yv,
-        text,
-        hovertemplate: "%{text}<br>DOY %{x}<br>%{y:.2f}<extra>" + String(y) + "</extra>",
+        x: pts.map(p => p.doy),
+        y: pts.map(p => p.v),
+        text: pts.map(p => `${p.date}: ${p.v.toFixed(2)}`),
+        hoverinfo: "text",
+        yaxis: yaxisName,
         line: {
-          width: (y === maxYear ? 4 : 2)
-        },
-        yaxis: yaxisName || "y"
+          color: color,
+          width: y === maxYearSelected ? 3.5 : 2
+        }
       });
-    }
+    });
 
     return traces;
   }
 
   function baseLayout(title, yTitle) {
     return {
-      title: { text: title, font: { color: "#e9f0f7" } },
+      title: {
+        text: title,
+        font: { family: 'Outfit, sans-serif', color: '#f8fafc', size: 16 },
+        x: 0.05
+      },
       paper_bgcolor: "rgba(0,0,0,0)",
       plot_bgcolor: "rgba(0,0,0,0)",
-      margin: { l: 70, r: 70, t: 60, b: 55 },
+      margin: { l: 60, r: 60, t: 80, b: 60 },
+      showlegend: true,
+      legend: {
+        orientation: "h",
+        y: 1.15,
+        font: { color: "#94a3b8" }
+      },
       xaxis: {
-        title: "Día del año",
-        gridcolor: "rgba(255,255,255,0.08)",
-        zeroline: false,
-        tickfont: { color: "#cfd9e2" },
-        titlefont: { color: "#cfd9e2" }
+        title: "Día del Año (1 - 366)",
+        gridcolor: "rgba(255,255,255,0.05)",
+        tickfont: { color: "#94a3b8" },
+        titlefont: { color: "#94a3b8" },
+        range: [1, 366]
       },
       yaxis: {
         title: yTitle,
-        gridcolor: "rgba(255,255,255,0.08)",
-        zeroline: false,
-        tickfont: { color: "#cfd9e2" },
-        titlefont: { color: "#cfd9e2" }
-      },
-      legend: {
-        orientation: "h",
-        x: 0,
-        y: 1.12,
-        font: { color: "#cfd9e2" }
+        gridcolor: "rgba(255,255,255,0.05)",
+        tickfont: { color: "#94a3b8" },
+        titlefont: { color: "#94a3b8" },
+        zeroline: false
       }
     };
   }
 
-  // ---- Boot ----
+  // ---- Init ----
   async function boot() {
-    initSelectors();
-    setMetaText("cargando...");
-
     try {
-      META = await loadJSON(FILES.meta);
-      setMetaText(`meta.json OK · ${META.generated_at_utc || ""}`.trim());
-    } catch (e) {
-      console.error("meta.json error:", e);
-      setMetaText("meta.json no disponible");
-      META = null;
-      return;
-    }
+      metaStatus.textContent = "Cargando datos...";
+      META = await (await fetch(FILES.meta)).json();
 
-    try {
-      const prodRows = await loadCSV(FILES.prod);
-      PROD = prodRows.map(r => ({
-        date: r.date,
-        serie: r.series,
-        variable: r.metric,
-        value: r.value
-      }));
-    } catch (e) {
-      console.error("produccion_diaria_larga.csv error:", e);
-      PROD = [];
-    }
+      // Populate Production
+      clearSelect(selProdCentral);
+      META.produccion.series.forEach(s => addOption(selProdCentral, s, s));
+      selProdCentral.value = META.produccion.series[0];
 
-    try {
-      const hidroRows = await loadCSV(FILES.hidro);
-      HIDRO = hidroRows.map(r => ({
-        date: r.date,
-        serie: r.series,
-        variable: r.metric,
-        value: r.value
-      }));
-    } catch (e) {
-      console.error("hidrologia_diaria_larga.csv error:", e);
-      HIDRO = [];
-    }
+      clearSelect(selProdYears);
+      META.produccion.years.sort((a, b) => b - a).forEach(y => addOption(selProdYears, y, y));
+      // Select last 2 years by default
+      if (selProdYears.options.length >= 2) {
+        selProdYears.options[0].selected = true;
+        selProdYears.options[1].selected = true;
+      }
 
-    refreshOptionsForModule();
-    scheduleRedraw();
+      // Populate Hydrology
+      clearSelect(selHidroCentral);
+      META.hidrologia.series.forEach(s => addOption(selHidroCentral, s, s));
+      selHidroCentral.value = META.hidrologia.series[0];
+
+      clearSelect(selHidroYears);
+      META.hidrologia.years.sort((a, b) => b - a).forEach(y => addOption(selHidroYears, y, y));
+      if (selHidroYears.options.length >= 1) {
+        selHidroYears.options[0].selected = true;
+      }
+
+      metaStatus.textContent = "Datos listos";
+
+      // Load CSVs
+      const [pData, hData] = await Promise.all([
+        loadCSV(FILES.prod),
+        loadCSV(FILES.hidro)
+      ]);
+
+      PROD_DATA = pData.map(r => ({ date: r.date, serie: r.series, variable: r.metric, value: r.value }));
+      HIDRO_DATA = hData.map(r => ({ date: r.date, serie: r.series, variable: r.metric, value: r.value }));
+
+      // Listeners
+      selProdCentral.addEventListener("change", drawProduction);
+      selProdYears.addEventListener("change", drawProduction);
+      selHidroCentral.addEventListener("change", drawHidrology);
+      selHidroYears.addEventListener("change", drawHidrology);
+
+      drawProduction();
+      drawHidrology();
+
+    } catch (e) {
+      console.error(e);
+      metaStatus.textContent = "Error al cargar datos";
+    }
   }
 
-  // Wait for Plotly
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else {
-    boot();
-  }
+  boot();
 })();
