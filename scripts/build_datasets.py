@@ -164,6 +164,11 @@ def build_produccion_diaria_larga() -> pd.DataFrame:
     out = pd.DataFrame(rows)
     if out.empty:
         raise ValueError("Production dataset ended up empty.")
+    
+    # Deduplicate and sort
+    out = out.drop_duplicates(subset=["date", "series", "metric"], keep="last")
+    out = out.sort_values(["date", "series"])
+    
     return out
 
 
@@ -237,6 +242,11 @@ def build_hidrologia_diaria_larga() -> pd.DataFrame:
     out = pd.DataFrame(rows)
     if out.empty:
         raise ValueError("Hydrology dataset ended up empty.")
+    
+    # Deduplicate and sort
+    out = out.drop_duplicates(subset=["date", "series", "metric"], keep="last")
+    out = out.sort_values(["date", "series", "metric"])
+
     return out
 
 
