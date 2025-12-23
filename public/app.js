@@ -136,32 +136,38 @@
   }
 
   // ---- Redraw Logic ----
+  const TICK_VALS = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
+  const TICK_TEXT = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+
+  const getGenericDoy = (m, day) => {
+    const d = new Date(2025, m - 1, day); // Non-leap ref
+    const start = new Date(2025, 0, 1);
+    return Math.floor((d - start) / 86400000) + 1;
+  };
+
   function drawProduction() {
     if (!PROD_DATA || !META) return;
 
     const serie = selProdCentral.value;
     const years = getSelectedValues(selProdYears).map(Number);
-    const yearSet = new Set(years);
     const startMonth = parseInt(selProdStartMonth.value);
     const endMonth = parseInt(selProdEndMonth.value);
 
-    // Filter Rows by Month Range
-    const filterByMonth = (r) => {
+    // Filter Rows
+    const filteredProdData = PROD_DATA.filter(r => {
       const m = parseInt(r.date.slice(5, 7));
       return m >= startMonth && m <= endMonth;
-    };
+    });
 
-    // 1. Line Chart (Full Date X-Axis) - Convert to GWh
-    const filteredProdData = PROD_DATA.filter(filterByMonth);
-    const lineRows = filteredProdData.filter(r => r.serie === serie && yearSet.has(Number(r.date.slice(0, 4))));
-
-    // Group for different colors by year in line chart
+    // 1. Line Chart (DOY X-Axis for comparison)
     const tracesLine = [];
+    const minDoy = getGenericDoy(startMonth, 1);
+    const maxDoy = getGenericDoy(endMonth + 1, 0);
 
-    years.sort().forEach((y, i) => {
+    years.sort().forEach(y => {
       const color = getYearColor(y);
-      const yearRows = lineRows
-        .filter(r => r.date.startsWith(String(y)))
+      const yearRows = filteredProdData
+        .filter(r => r.serie === serie && r.date.startsWith(String(y)))
         .sort((a, b) => a.date.localeCompare(b.date));
 
       if (yearRows.length === 0) return;
@@ -170,14 +176,20 @@
         type: "scatter",
         mode: "lines",
         name: String(y),
-        x: yearRows.map(r => r.date),
+        x: yearRows.map(r => doyFromISO(r.date)),
         y: yearRows.map(r => (parseNumber(r.value) || 0) / 1000), // MWh to GWh
+        customdata: yearRows.map(r => r.date),
         line: { color: color, width: 2 },
-        hovertemplate: "<b>%{x}</b><br>%{y:.2f} GWh<extra></extra>"
+        hovertemplate: "<b>%{customdata}</b><br>%{y:.2f} GWh<extra></extra>"
       });
     });
 
-    Plotly.react(plotProdLine, tracesLine, baseLayout(`${serie} - Evolución (GWh)`, "Generación (GWh)", true), { responsive: true, displayModeBar: false });
+    const layout = baseLayout(`${serie} - Evolución (GWh)`, "Generación (GWh)", false);
+    layout.xaxis.range = [minDoy, maxDoy];
+    layout.xaxis.tickvals = TICK_VALS;
+    layout.xaxis.ticktext = TICK_TEXT;
+
+    Plotly.react(plotProdLine, tracesLine, layout, { responsive: true, displayModeBar: false });
 
     // 2. Pie Chart (Comparison of plants for selected range)
     const pieDataMap = new Map();
@@ -246,20 +258,8 @@
     rows.forEach((r, idx) => r.ma30 = allMA[idx]);
 
     const traces = [];
-
-    // Generic month labels helper
-    const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-    const tickVals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
-    const tickText = monthNames;
-
-    // Calculate X-axis range based on selected months
-    const getDoy = (m, day) => {
-      const d = new Date(2025, m - 1, day); // Use a non-leap year (2025) for generic DOY
-      const start = new Date(2025, 0, 1);
-      return Math.floor((d - start) / 86400000) + 1;
-    };
-    const minDoy = getDoy(startMonth, 1);
-    const maxDoy = getDoy(endMonth + 1, 0); // Last day of endMonth
+    const minDoy = getGenericDoy(startMonth, 1);
+    const maxDoy = getGenericDoy(endMonth + 1, 0); // Last day of endMonth
 
     years.sort().forEach((y, i) => {
       const color = getYearColor(y);
@@ -321,12 +321,9 @@
 
     const layout = baseLayout(`Hidrología · ${targetSerie}`, variable, false);
 
-    // Adapt X-axis range
-    layout.xaxis.range = [minDoy, maxDoy];
-
     // Customize X-axis for generic date labels
-    layout.xaxis.tickvals = tickVals;
-    layout.xaxis.ticktext = tickText;
+    layout.xaxis.tickvals = TICK_VALS;
+    layout.xaxis.ticktext = TICK_TEXT;
 
     // Fix Y-axis for Cota or Caudal
     if (variable.includes("Cota")) {
