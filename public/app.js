@@ -321,6 +321,9 @@
 
     const layout = baseLayout(`Hidrología · ${targetSerie}`, variable, false);
 
+    // Adapt X-axis range
+    layout.xaxis.range = [minDoy, maxDoy];
+
     // Customize X-axis for generic date labels
     layout.xaxis.tickvals = TICK_VALS;
     layout.xaxis.ticktext = TICK_TEXT;
