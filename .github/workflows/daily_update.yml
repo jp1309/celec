@@ -38,4 +38,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add Hidro_mensual/ Produ_mensual/ data/ public/data/
           git commit -m "Auto-update data: $(date +'%Y-%m-%d')" || echo "No changes to commit"
+          git pull --rebase origin main
           git push
