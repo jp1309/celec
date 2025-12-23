@@ -204,9 +204,9 @@
     }];
 
     Plotly.react(plotProdPie, tracesPie, {
-      title: { text: "Distribución por Central", font: { color: "#f8fafc", size: 14 } },
-      paper_bgcolor: "rgba(0,0,0,0)",
-      plot_bgcolor: "rgba(0,0,0,0)",
+      title: { text: "Distribución por Central", font: { color: "#1e293b", size: 14, family: 'Outfit, sans-serif' } },
+      paper_bgcolor: "#ffffff",
+      plot_bgcolor: "#ffffff",
       margin: { t: 50, b: 20, l: 20, r: 20 },
       showlegend: false
     }, { responsive: true, displayModeBar: false });
@@ -339,7 +339,7 @@
         x0: minDoy, x1: maxDoy,
         y0: 2115, y1: 2115,
         xref: 'x', yref: 'y',
-        line: { color: 'rgba(255, 255, 255, 0.4)', width: 2, dash: 'solid' }
+        line: { color: 'rgba(30, 41, 59, 0.4)', width: 2, dash: 'solid' }
       }];
     } else if (variable.includes("Caudal")) {
       layout.yaxis.range = [0, 400];
@@ -350,7 +350,7 @@
         x0: minDoy, x1: maxDoy,
         y0: 50, y1: 50,
         xref: 'x', yref: 'y',
-        line: { color: 'rgba(255, 255, 255, 0.4)', width: 2, dash: 'solid' }
+        line: { color: 'rgba(30, 41, 59, 0.4)', width: 2, dash: 'solid' }
       }];
     }
 
@@ -361,36 +361,35 @@
     return {
       title: {
         text: title,
-        font: { family: 'Outfit, sans-serif', color: '#f8fafc', size: 16 },
+        font: { family: 'Outfit, sans-serif', color: '#1e293b', size: 16 },
         x: 0,
         y: 0.98,
         pad: { t: 10 }
       },
-      paper_bgcolor: "rgba(0,0,0,0)",
-      plot_bgcolor: "rgba(0,0,0,0)",
+      paper_bgcolor: "#ffffff",
+      plot_bgcolor: "#ffffff",
       margin: { l: 60, r: 40, t: 100, b: 60 }, // Added top margin for legend
       showlegend: true,
       legend: {
         orientation: "h",
         y: 1.12,
         x: 0,
-        font: { color: "#94a3b8", size: 12 }
+        font: { color: "#475569", size: 12 }
       },
       xaxis: {
-        title: isDateX ? "Fecha" : "Día del Año",
+        title: { text: isDateX ? "Fecha" : "Día del Año", font: { color: "#475569" } },
         type: isDateX ? "date" : "linear",
-        gridcolor: "rgba(255,255,255,0.05)",
-        tickfont: { color: "#94a3b8" },
-        titlefont: { color: "#94a3b8" },
+        gridcolor: "#f1f5f9",
+        tickfont: { color: "#475569" },
         range: isDateX ? undefined : [1, 366]
       },
       yaxis: {
-        title: yTitle,
-        gridcolor: "rgba(255,255,255,0.05)",
-        tickfont: { color: "#94a3b8" },
-        titlefont: { color: "#94a3b8" },
+        title: { text: yTitle, font: { color: "#475569" } },
+        gridcolor: "#f1f5f9",
+        tickfont: { color: "#475569" },
         zeroline: false
-      }
+      },
+      font: { family: 'Outfit, sans-serif' }
     };
   }
 
@@ -415,8 +414,6 @@
       META.hidrologia.years.sort((a, b) => b - a).forEach(y => addOption(selHidroYears, y, y));
       if (selHidroYears.options.length >= 1) selHidroYears.options[0].selected = true;
 
-      metaStatus.textContent = "Datos listos";
-
       const [pData, hData] = await Promise.all([
         loadCSV(FILES.prod),
         loadCSV(FILES.hidro)
@@ -430,7 +427,7 @@
           variable: (r.metric || "").trim(),
           value: val
         };
-      }).filter(r => r.value > 0); // Exclude 0/NA values
+      }).filter(r => r.value > 0);
 
       HIDRO_DATA = hData.map(r => {
         const val = parseNumber(r.value);
@@ -440,7 +437,17 @@
           variable: (r.metric || "").trim(),
           value: val
         };
-      }).filter(r => r.value > 0); // Exclude 0/NA values
+      }).filter(r => r.value > 0);
+
+      const allDates = [...PROD_DATA, ...HIDRO_DATA].map(r => r.date);
+      if (allDates.length > 0) {
+        const latest = allDates.sort().pop();
+        const [y, m, d] = latest.split("-");
+        const months = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+        metaStatus.textContent = `Última fecha: ${d}-${months[parseInt(m) - 1]}-${y}`;
+      } else {
+        metaStatus.textContent = "Datos listos";
+      }
 
       console.log("PROD_DATA sample:", PROD_DATA.slice(0, 2));
 
