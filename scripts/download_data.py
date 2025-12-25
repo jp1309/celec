@@ -28,10 +28,10 @@ HIDRO_MRIDS = {
     "CotaMol": 24019,
     "CaudalMaz": 30538,
     "CotaMaz": 30031,
-    "CaudalSop": 35503,
-    "CotaSop": 35003,
-    "CaudalMsf": 40503,
-    "CotaMsf": 40003
+    "CaudalSop": 90537,
+    "CotaSop": 90919,
+    "CaudalMsf": 650538,
+    "CotaMsf": 650919
 }
 
 SPANISH_MONTHS = {
