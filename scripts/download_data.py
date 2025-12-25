@@ -149,7 +149,11 @@ def main():
     # Si hoy es 22, descargamos 21, 20, 19
     days_to_download = 3
     
-    for i in range(1, days_to_download + 1):
+    # Intentamos descargar hoy (0) y los últimos 5 días para asegurar cobertura
+    today = datetime.now()
+    days_to_download = 5
+    
+    for i in range(0, days_to_download + 1):
         target_date = today - timedelta(days=i)
         prod, hidro = download_data_for_date(target_date)
         
