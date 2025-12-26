@@ -1,50 +1,81 @@
-# CELEC. Hidrología y Producción (CSV mensuales → datasets diarios)
+# CELEC Data Dashboard 📊
 
-## Estructura esperada del repo (raíz: /celec)
+![Daily Update](https://github.com/jp1309/celec/actions/workflows/daily_update.yml/badge.svg)
+![Python Version](https://img.shields.io/badge/python-3.11-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-En la raíz del repo deben existir estas carpetas con los CSV mensuales (tú los actualizas):
+Sistema automatizado de monitoreo y visualización de datos de **Producción Energética** e **Hidrología** de la Corporación Eléctrica del Ecuador (CELEC).
 
-- `Hidro_mensual/`
-- `Produ_mensual/`
+---
 
-Este script NO descarga nada de internet. Solo consolida los CSV locales del repo.
+## 🚀 Descripción
 
-## Qué genera (salida)
+Este proyecto recolecta, procesa y visualiza diariamente datos críticos del sector eléctrico ecuatoriano. Utiliza un bot programado en Python para extraer información de la API de CELEC y genera un dashboard interactivo publicado automáticamente mediante GitHub Pages.
 
-El script genera archivos listos para el dashboard dentro de `data/`:
+### Módulos Principales:
+- **Producción:** Datos de energía generada (MWh) por las centrales Molino, Mazar, Sopladora y Minas San Francisco.
+- **Hidrología:** Monitoreo de caudales (m³/s) y cotas (msnm) de los embalses y cuencas principales.
 
-- `data/produccion_diaria_larga.csv`
-- `data/hidrologia_diaria_larga.csv`
-- `data/meta.json`
+---
 
-### Producción
-- Unidad: **MWh**
-- Centrales: `molino`, `mazar`, `sopladora`, `msf`, y `csr`
-- **CSR se calcula como suma**: Molino + Mazar + Sopladora + MSF.
+## 🛠️ Arquitectura del Proyecto
 
-### Hidrología
-- Caudales en **m3/s**
-- Cotas en **msnm**
-- Variables en columna `kind`: `caudal_m3s` o `cota_msnm`
+El sistema opera bajo un flujo **ETL (Extract, Transform, Load)** automatizado:
 
-### Regla para meses parciales (ej. diciembre 2025)
-Si un día viene con **todos los valores en 0** (en producción: solo las 4 centrales componentes. En hidrología: todas las columnas numéricas),
-se marca como:
-- `is_placeholder = 1`
-- el valor se convierte a `NA`
+1.  **Extracción (`download_data.py`):** Un bot consulta la API de CELEC cada 24 horas, descargando datos en tiempo real de los últimos 5 días para asegurar la integridad de la información.
+2.  **Transformación (`build_datasets.py`):** Procesa los archivos mensuales individuales y los consolida en datasets de "formato largo" optimizados para visualización.
+3.  **Carga y Automatización:** GitHub Actions ejecuta este flujo diariamente a las 00:00 (Ecuador), realiza un commit de los nuevos datos y actualiza el dashboard.
 
-Así esos días NO se interpretan como “cero real” en gráficos.
+---
 
-## Cómo correr localmente (Windows)
+## 📂 Estructura del Repositorio
 
-```bash
-cd C:\Users\HP\OneDrive\JpE\Github\celec
-python -m venv .venv
-.venv\Scripts\activate
-pip install pandas
-python scripts\build_datasets.py
-```
+- `scripts/`: Código fuente de los bots de descarga y procesamiento.
+- `Produ_mensual/`: Almacén histórico de archivos CSV de producción por mes.
+- `Hidro_mensual/`: Almacén histórico de archivos CSV de hidrología por mes.
+- `data/`: Datasets maestros consolidados (`produccion_diaria_larga.csv`, `hidrologia_diaria_larga.csv`).
+- `public/`: Archivos del frontend del dashboard (HTML, CSS, JS).
 
-## GitHub Actions
-El workflow `.github/workflows/build_datasets.yml` corre diariamente y también manualmente (workflow_dispatch),
-y hace commit automático si cambian los datasets.
+---
+
+## 💻 Configuración Local
+
+Si deseas ejecutar el proyecto en tu entorno local:
+
+### Requisitos
+- Python 3.11+
+- Git
+
+### Instalación
+1. Clonar el repositorio:
+   ```bash
+   git clone https://github.com/jp1309/celec.git
+   cd celec
+   ```
+2. Instalar dependencias:
+   ```bash
+   pip install pandas requests urllib3
+   ```
+3. Ejecutar actualización manual:
+   ```bash
+   # Descargar datos nuevos
+   python scripts/download_data.py
+   # Construir datasets para el dashboard
+   python scripts/build_datasets.py
+   ```
+
+---
+
+## 📈 Dashboard
+
+El dashboard es accesible de forma gratuita y se actualiza automáticamente.
+🔗 **Link del Dashboard:** [jp1309.github.io/celec](https://jp1309.github.io/celec)
+
+---
+
+## 🛡️ Licencia
+
+Este proyecto está bajo la Licencia MIT. Los datos son propiedad de CELEC y se utilizan únicamente con fines informativos y de visualización pública.
+
+---
+*Desarrollado con ❤️ para el monitoreo energético del Ecuador.*
