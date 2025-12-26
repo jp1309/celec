@@ -194,6 +194,7 @@
     // 2. Pie Chart (Comparison of plants for selected range)
     const pieDataMap = new Map();
     const plantsToInclude = META.produccion.series.filter(s => !s.includes("CSR") && !s.includes("+"));
+    const yearSet = new Set(years);
 
     plantsToInclude.forEach(p => {
       const total = filteredProdData
@@ -439,12 +440,16 @@
         };
       }).filter(r => r.value > 0);
 
-      const allDates = [...PROD_DATA, ...HIDRO_DATA].map(r => r.date);
+      const allDates = [...PROD_DATA, ...HIDRO_DATA].map(r => r.date).filter(Boolean);
       if (allDates.length > 0) {
         const latest = allDates.sort().pop();
-        const [y, m, d] = latest.split("-");
-        const months = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-        metaStatus.textContent = `Última fecha: ${d}-${months[parseInt(m) - 1]}-${y}`;
+        if (latest && latest.includes("-")) {
+          const [y, m, d] = latest.split("-");
+          const months = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+          metaStatus.textContent = `Última fecha: ${d}-${months[parseInt(m, 10) - 1]}-${y}`;
+        } else {
+          metaStatus.textContent = "Datos listos";
+        }
       } else {
         metaStatus.textContent = "Datos listos";
       }
