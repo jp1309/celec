@@ -69,8 +69,9 @@ def download_data_for_date(date):
     for col, endpoint in PROD_ENDPOINTS.items():
         items = get_celec_data(endpoint, {"fecha": target_date_str})
         if items:
-            val = items[0].get('energia', 0) or items[0].get('valor', 0)
-            prod_row[col] = float(val) if val is not None else 0.0
+            # La API devuelve 'valueedit' con valores horarios - sumamos para obtener energía diaria
+            vals = [i.get('valueedit', 0) for i in items if i.get('valueedit') is not None]
+            prod_row[col] = sum(vals) if vals else 0.0
         else:
             prod_row[col] = 0.0
 
@@ -85,7 +86,8 @@ def download_data_for_date(date):
         }
         items = get_celec_data("sardomcsr/pointValues", params)
         if items:
-            vals = [i.get('valor', 0) for i in items if i.get('valor') is not None]
+            # La API devuelve 'valueedit' - calculamos el promedio diario
+            vals = [i.get('valueedit', 0) for i in items if i.get('valueedit') is not None]
             hidro_row[col] = sum(vals)/len(vals) if vals else 0.0
         else:
             hidro_row[col] = 0.0
