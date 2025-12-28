@@ -19472,7 +19472,7 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2025-12-23,2025,357,23-dic,Minas San Francisco,Caudal (m³/s),16.11625526666667,0
 2025-12-23,2025,357,23-dic,Minas San Francisco,Cota (msnm),788.4104166666666,0
 2025-12-23,2025,357,23-dic,Molino,Caudal (m³/s),119.77531754166664,0
-2025-12-23,2025,357,23-dic,Molino,Cota (msnm),1987.5184478708327,0
+2025-12-23,2025,357,23-dic,Molino,Cota (msnm),1987.5184478708331,0
 2025-12-23,2025,357,23-dic,Sopladora,Caudal (m³/s),124.66974562083334,0
 2025-12-23,2025,357,23-dic,Sopladora,Cota (msnm),1316.2711739125,0
 2025-12-24,2025,358,24-dic,Cuenca del Rio Paute,Caudal (m³/s),13.56729368833333,0
@@ -19493,12 +19493,21 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2025-12-25,2025,359,25-dic,Molino,Cota (msnm),1987.5989685041668,0
 2025-12-25,2025,359,25-dic,Sopladora,Caudal (m³/s),61.16791282500001,0
 2025-12-25,2025,359,25-dic,Sopladora,Cota (msnm),1315.269749958333,0
-2025-12-26,2025,360,26-dic,Cuenca del Rio Paute,Caudal (m³/s),17.347989421250006,0
-2025-12-26,2025,360,26-dic,Mazar,Caudal (m³/s),17.347989421250006,0
-2025-12-26,2025,360,26-dic,Mazar,Cota (msnm),2142.9376171875,0
+2025-12-26,2025,360,26-dic,Cuenca del Rio Paute,Caudal (m³/s),16.991853696250004,0
+2025-12-26,2025,360,26-dic,Mazar,Caudal (m³/s),16.991853696250004,0
+2025-12-26,2025,360,26-dic,Mazar,Cota (msnm),2142.937083333333,0
 2025-12-26,2025,360,26-dic,Minas San Francisco,Caudal (m³/s),11.5524158125,0
 2025-12-26,2025,360,26-dic,Minas San Francisco,Cota (msnm),789.1410416666666,0
-2025-12-26,2025,360,26-dic,Molino,Caudal (m³/s),89.58946075,0
+2025-12-26,2025,360,26-dic,Molino,Caudal (m³/s),89.37571383333334,0
 2025-12-26,2025,360,26-dic,Molino,Cota (msnm),1986.8284301708336,0
 2025-12-26,2025,360,26-dic,Sopladora,Caudal (m³/s),124.64425361249997,0
 2025-12-26,2025,360,26-dic,Sopladora,Cota (msnm),1316.4201253416663,0
+2025-12-27,2025,361,27-dic,Cuenca del Rio Paute,Caudal (m³/s),16.555438542083333,0
+2025-12-27,2025,361,27-dic,Mazar,Caudal (m³/s),16.555438542083333,0
+2025-12-27,2025,361,27-dic,Mazar,Cota (msnm),2141.894166666667,0
+2025-12-27,2025,361,27-dic,Minas San Francisco,Caudal (m³/s),11.3515186625,0
+2025-12-27,2025,361,27-dic,Minas San Francisco,Cota (msnm),787.7872916666666,0
+2025-12-27,2025,361,27-dic,Molino,Caudal (m³/s),108.54252154166666,0
+2025-12-27,2025,361,27-dic,Molino,Cota (msnm),1986.915761325,0
+2025-12-27,2025,361,27-dic,Sopladora,Caudal (m³/s),82.5184034875,0
+2025-12-27,2025,361,27-dic,Sopladora,Cota (msnm),1315.4643961708332,0
