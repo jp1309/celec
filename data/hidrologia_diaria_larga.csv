@@ -19529,3 +19529,12 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2025-12-29,2025,363,29-dic,Molino,Cota (msnm),1987.2275775041664,0
 2025-12-29,2025,363,29-dic,Sopladora,Caudal (m³/s),117.51866845833337,0
 2025-12-29,2025,363,29-dic,Sopladora,Cota (msnm),1316.1431630541665,0
+2025-12-30,2025,364,30-dic,Cuenca del Rio Paute,Caudal (m³/s),14.630929367916664,0
+2025-12-30,2025,364,30-dic,Mazar,Caudal (m³/s),14.630929367916664,0
+2025-12-30,2025,364,30-dic,Mazar,Cota (msnm),2139.565,0
+2025-12-30,2025,364,30-dic,Minas San Francisco,Caudal (m³/s),11.544446829166665,0
+2025-12-30,2025,364,30-dic,Minas San Francisco,Cota (msnm),787.698125,0
+2025-12-30,2025,364,30-dic,Molino,Caudal (m³/s),113.58656920833332,0
+2025-12-30,2025,364,30-dic,Molino,Cota (msnm),1987.4614589250004,0
+2025-12-30,2025,364,30-dic,Sopladora,Caudal (m³/s),88.95232600833332,0
+2025-12-30,2025,364,30-dic,Sopladora,Cota (msnm),1315.949330654167,0
