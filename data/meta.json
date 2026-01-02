@@ -1,14 +1,15 @@
 {
-  "generated_at_utc": "2026-01-01T05:26:08.102128+00:00",
+  "generated_at_utc": "2026-01-02T05:24:21.277375+00:00",
   "produccion": {
-    "rows": 10950,
+    "rows": 10955,
     "years": [
       2020,
       2021,
       2022,
       2023,
       2024,
-      2025
+      2025,
+      2026
     ],
     "series": [
       "CSR (Mol+Maz+Sop+MSF)",
@@ -22,14 +23,15 @@
     ]
   },
   "hidrologia": {
-    "rows": 19548,
+    "rows": 19557,
     "years": [
       2020,
       2021,
       2022,
       2023,
       2024,
-      2025
+      2025,
+      2026
     ],
     "series": [
       "Cuenca del Rio Paute",
