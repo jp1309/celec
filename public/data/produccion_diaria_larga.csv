@@ -11124,8 +11124,13 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-02-04,2026,35,04-feb,Minas San Francisco,Energía (MWh),5180.653,0
 2026-02-04,2026,35,04-feb,Molino,Energía (MWh),19038.224742999995,0
 2026-02-04,2026,35,04-feb,Sopladora,Energía (MWh),6136.794901999999,0
-2026-02-05,2026,36,05-feb,CSR (Mol+Maz+Sop+MSF),Energía (MWh),35686.299525,0
+2026-02-05,2026,36,05-feb,CSR (Mol+Maz+Sop+MSF),Energía (MWh),37001.088146,0
 2026-02-05,2026,36,05-feb,Mazar,Energía (MWh),1693.119234,0
-2026-02-05,2026,36,05-feb,Minas San Francisco,Energía (MWh),6527.753,0
-2026-02-05,2026,36,05-feb,Molino,Energía (MWh),20013.506941,0
-2026-02-05,2026,36,05-feb,Sopladora,Energía (MWh),7451.92035,0
+2026-02-05,2026,36,05-feb,Minas San Francisco,Energía (MWh),6522.65,0
+2026-02-05,2026,36,05-feb,Molino,Energía (MWh),21009.677492,0
+2026-02-05,2026,36,05-feb,Sopladora,Energía (MWh),7775.64142,0
+2026-02-06,2026,37,06-feb,CSR (Mol+Maz+Sop+MSF),Energía (MWh),38584.306616,0
+2026-02-06,2026,37,06-feb,Mazar,Energía (MWh),2603.2259590000003,0
+2026-02-06,2026,37,06-feb,Minas San Francisco,Energía (MWh),6529.7,0
+2026-02-06,2026,37,06-feb,Molino,Energía (MWh),21658.458191,0
+2026-02-06,2026,37,06-feb,Sopladora,Energía (MWh),7792.922466,0
