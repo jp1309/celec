@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-02-11T06:08:36.931948+00:00",
+  "generated_at_utc": "2026-02-12T06:04:22.586280+00:00",
   "produccion": {
     "rows": 11160,
     "years": [
@@ -23,7 +23,7 @@
     ]
   },
   "hidrologia": {
-    "rows": 19917,
+    "rows": 19926,
     "years": [
       2020,
       2021,
