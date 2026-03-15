@@ -20195,3 +20195,12 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-03-13,2026,72,13-mar,Molino,Cota (msnm),1987.554843216667,0
 2026-03-13,2026,72,13-mar,Sopladora,Caudal (m³/s),128.1516727458333,0
 2026-03-13,2026,72,13-mar,Sopladora,Cota (msnm),1316.4578603125,0
+2026-03-14,2026,73,14-mar,Cuenca del Rio Paute,Caudal (m³/s),127.18723961166666,0
+2026-03-14,2026,73,14-mar,Mazar,Caudal (m³/s),127.18723961166666,0
+2026-03-14,2026,73,14-mar,Mazar,Cota (msnm),2153.6779150375,0
+2026-03-14,2026,73,14-mar,Minas San Francisco,Caudal (m³/s),257.8456131,0
+2026-03-14,2026,73,14-mar,Minas San Francisco,Cota (msnm),792.255,0
+2026-03-14,2026,73,14-mar,Molino,Caudal (m³/s),169.53198250000003,0
+2026-03-14,2026,73,14-mar,Molino,Cota (msnm),1989.439302670833,0
+2026-03-14,2026,73,14-mar,Sopladora,Caudal (m³/s),164.19746075000003,0
+2026-03-14,2026,73,14-mar,Sopladora,Cota (msnm),1317.12809245,0
