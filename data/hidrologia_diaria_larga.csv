@@ -20339,12 +20339,21 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-03-29,2026,88,29-mar,Molino,Cota (msnm),1983.326472320833,0
 2026-03-29,2026,88,29-mar,Sopladora,Caudal (m³/s),89.019402425,0
 2026-03-29,2026,88,29-mar,Sopladora,Cota (msnm),1315.7012685208335,0
-2026-03-30,2026,89,30-mar,Cuenca del Rio Paute,Caudal (m³/s),36.09980722,0
-2026-03-30,2026,89,30-mar,Mazar,Caudal (m³/s),36.09980722,0
-2026-03-30,2026,89,30-mar,Mazar,Cota (msnm),2143.29,0
-2026-03-30,2026,89,30-mar,Minas San Francisco,Caudal (m³/s),23.53025,0
-2026-03-30,2026,89,30-mar,Minas San Francisco,Cota (msnm),788.47,0
-2026-03-30,2026,89,30-mar,Molino,Caudal (m³/s),100.0735,0
-2026-03-30,2026,89,30-mar,Molino,Cota (msnm),1983.3913574,0
-2026-03-30,2026,89,30-mar,Sopladora,Caudal (m³/s),99.3198865,0
-2026-03-30,2026,89,30-mar,Sopladora,Cota (msnm),1315.9279785,0
+2026-03-30,2026,89,30-mar,Cuenca del Rio Paute,Caudal (m³/s),22.343783742916667,0
+2026-03-30,2026,89,30-mar,Mazar,Caudal (m³/s),22.343783742916667,0
+2026-03-30,2026,89,30-mar,Mazar,Cota (msnm),2142.7720833333333,0
+2026-03-30,2026,89,30-mar,Minas San Francisco,Caudal (m³/s),35.96292322916666,0
+2026-03-30,2026,89,30-mar,Minas San Francisco,Cota (msnm),789.3487500000001,0
+2026-03-30,2026,89,30-mar,Molino,Caudal (m³/s),147.86408062499996,0
+2026-03-30,2026,89,30-mar,Molino,Cota (msnm),1983.9302477375004,0
+2026-03-30,2026,89,30-mar,Sopladora,Caudal (m³/s),133.068518425,0
+2026-03-30,2026,89,30-mar,Sopladora,Cota (msnm),1316.437622075,0
+2026-03-31,2026,90,31-mar,Cuenca del Rio Paute,Caudal (m³/s),47.43347019,0
+2026-03-31,2026,90,31-mar,Mazar,Caudal (m³/s),47.43347019,0
+2026-03-31,2026,90,31-mar,Mazar,Cota (msnm),2142.15,0
+2026-03-31,2026,90,31-mar,Minas San Francisco,Caudal (m³/s),47.4317666,0
+2026-03-31,2026,90,31-mar,Minas San Francisco,Cota (msnm),788.73,0
+2026-03-31,2026,90,31-mar,Molino,Caudal (m³/s),134.143081,0
+2026-03-31,2026,90,31-mar,Molino,Cota (msnm),1983.93,0
+2026-03-31,2026,90,31-mar,Sopladora,Caudal (m³/s),111.2023867,0
+2026-03-31,2026,90,31-mar,Sopladora,Cota (msnm),1315.9844971,0
