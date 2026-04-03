@@ -20366,12 +20366,21 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-04-01,2026,91,01-abr,Molino,Cota (msnm),1983.3176388125005,0
 2026-04-01,2026,91,01-abr,Sopladora,Caudal (m³/s),148.85490999583337,0
 2026-04-01,2026,91,01-abr,Sopladora,Cota (msnm),1316.7649027541663,0
-2026-04-02,2026,92,02-abr,Cuenca del Rio Paute,Caudal (m³/s),16.88272018,0
-2026-04-02,2026,92,02-abr,Mazar,Caudal (m³/s),16.88272018,0
-2026-04-02,2026,92,02-abr,Mazar,Cota (msnm),2139.65,0
-2026-04-02,2026,92,02-abr,Minas San Francisco,Caudal (m³/s),33.4885111,0
-2026-04-02,2026,92,02-abr,Minas San Francisco,Cota (msnm),784.89,0
-2026-04-02,2026,92,02-abr,Molino,Caudal (m³/s),143.427364,0
-2026-04-02,2026,92,02-abr,Molino,Cota (msnm),1982.8895264,0
-2026-04-02,2026,92,02-abr,Sopladora,Caudal (m³/s),175.0665604,0
-2026-04-02,2026,92,02-abr,Sopladora,Cota (msnm),1317.1098633,0
+2026-04-02,2026,92,02-abr,Cuenca del Rio Paute,Caudal (m³/s),13.80540150375,0
+2026-04-02,2026,92,02-abr,Mazar,Caudal (m³/s),13.80540150375,0
+2026-04-02,2026,92,02-abr,Mazar,Cota (msnm),2138.975333333333,0
+2026-04-02,2026,92,02-abr,Minas San Francisco,Caudal (m³/s),32.7191962125,0
+2026-04-02,2026,92,02-abr,Minas San Francisco,Cota (msnm),785.8904166666666,0
+2026-04-02,2026,92,02-abr,Molino,Caudal (m³/s),143.39921154166666,0
+2026-04-02,2026,92,02-abr,Molino,Cota (msnm),1982.9151816000003,0
+2026-04-02,2026,92,02-abr,Sopladora,Caudal (m³/s),156.05972110833338,0
+2026-04-02,2026,92,02-abr,Sopladora,Cota (msnm),1316.8627777041663,0
+2026-04-03,2026,93,03-abr,Cuenca del Rio Paute,Caudal (m³/s),19.87348333,0
+2026-04-03,2026,93,03-abr,Mazar,Caudal (m³/s),19.87348333,0
+2026-04-03,2026,93,03-abr,Mazar,Cota (msnm),2138.215,0
+2026-04-03,2026,93,03-abr,Minas San Francisco,Caudal (m³/s),28.5868056,0
+2026-04-03,2026,93,03-abr,Minas San Francisco,Cota (msnm),784.22,0
+2026-04-03,2026,93,03-abr,Molino,Caudal (m³/s),138.908472,0
+2026-04-03,2026,93,03-abr,Molino,Cota (msnm),1982.4227295,0
+2026-04-03,2026,93,03-abr,Sopladora,Caudal (m³/s),175.1606506,0
+2026-04-03,2026,93,03-abr,Sopladora,Cota (msnm),1317.1185303,0
