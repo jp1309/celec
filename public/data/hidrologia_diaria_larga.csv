@@ -20465,12 +20465,21 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-04-12,2026,102,12-abr,Molino,Cota (msnm),1981.1635030125,0
 2026-04-12,2026,102,12-abr,Sopladora,Caudal (m³/s),69.51674927916666,0
 2026-04-12,2026,102,12-abr,Sopladora,Cota (msnm),1315.5767313666663,0
-2026-04-13,2026,103,13-abr,Cuenca del Rio Paute,Caudal (m³/s),56.733058795000005,0
-2026-04-13,2026,103,13-abr,Mazar,Caudal (m³/s),56.733058795000005,0
-2026-04-13,2026,103,13-abr,Mazar,Cota (msnm),2139.115,0
-2026-04-13,2026,103,13-abr,Minas San Francisco,Caudal (m³/s),23.6821861,0
-2026-04-13,2026,103,13-abr,Minas San Francisco,Cota (msnm),788.08,0
-2026-04-13,2026,103,13-abr,Molino,Caudal (m³/s),13.6679135,0
-2026-04-13,2026,103,13-abr,Molino,Cota (msnm),1979.91290285,0
-2026-04-13,2026,103,13-abr,Sopladora,Caudal (m³/s),102.81685985,0
-2026-04-13,2026,103,13-abr,Sopladora,Cota (msnm),1316.10827635,0
+2026-04-13,2026,103,13-abr,Cuenca del Rio Paute,Caudal (m³/s),37.75275774749999,0
+2026-04-13,2026,103,13-abr,Mazar,Caudal (m³/s),37.75275774749999,0
+2026-04-13,2026,103,13-abr,Mazar,Cota (msnm),2139.003375,0
+2026-04-13,2026,103,13-abr,Minas San Francisco,Caudal (m³/s),26.41281126666667,0
+2026-04-13,2026,103,13-abr,Minas San Francisco,Cota (msnm),788.53375,0
+2026-04-13,2026,103,13-abr,Molino,Caudal (m³/s),98.77345395833336,0
+2026-04-13,2026,103,13-abr,Molino,Cota (msnm),1979.491964025,0
+2026-04-13,2026,103,13-abr,Sopladora,Caudal (m³/s),112.53971016666668,0
+2026-04-13,2026,103,13-abr,Sopladora,Cota (msnm),1315.5429382458335,0
+2026-04-14,2026,104,14-abr,Cuenca del Rio Paute,Caudal (m³/s),24.12167685,0
+2026-04-14,2026,104,14-abr,Mazar,Caudal (m³/s),24.12167685,0
+2026-04-14,2026,104,14-abr,Mazar,Cota (msnm),2138.53,0
+2026-04-14,2026,104,14-abr,Minas San Francisco,Caudal (m³/s),27.9513685,0
+2026-04-14,2026,104,14-abr,Minas San Francisco,Cota (msnm),787.09,0
+2026-04-14,2026,104,14-abr,Molino,Caudal (m³/s),139.795747,0
+2026-04-14,2026,104,14-abr,Molino,Cota (msnm),1979.7993164,0
+2026-04-14,2026,104,14-abr,Sopladora,Caudal (m³/s),127.1266833,0
+2026-04-14,2026,104,14-abr,Sopladora,Cota (msnm),1315.7593994,0
