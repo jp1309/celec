@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-04-23T07:00:30.401340+00:00",
+  "generated_at_utc": "2026-04-23T23:29:41.596336+00:00",
   "produccion": {
     "rows": 11515,
     "years": [
@@ -43,6 +43,19 @@
     "metrics": [
       "Caudal (m³/s)",
       "Cota (msnm)"
+    ]
+  },
+  "ccs": {
+    "rows": 822,
+    "fecha_min": "2024-01-01",
+    "fecha_max": "2026-04-20",
+    "ultimo_coca": 176.63,
+    "ultimo_css": 156.56,
+    "ultimo_frente": 20.06,
+    "years": [
+      2024,
+      2025,
+      2026
     ]
   }
 }
