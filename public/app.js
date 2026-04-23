@@ -71,8 +71,6 @@
   let CCS_DATA = null;
   let CCS_GAPS = null;
   let CCS_MONTHLY = null;
-  let CCS_YEAR_FILTER = null;
-  let CCS_Y_SCALE = "linear";
 
   // ---- Tab Logic ----
   tabBtns.forEach(btn => {
@@ -373,7 +371,23 @@
     Plotly.react(plotHidroMain, traces, layout, { responsive: true, displayModeBar: false });
   }
 
-  // ---- CCS (Río Coca) ----
+  // ====================================================================
+  // CCS · Río Coca — Dashboard v2
+  // ====================================================================
+
+  // Categorías de eventos (con orden de severidad)
+  const CCS_CATEGORIES = [
+    { key: 'extrema',     label: 'Avenida extrema',     emoji: '🔴', color: '#dc2626', match: r => r.coca != null && r.coca > 600 },
+    { key: 'alta',        label: 'Avenida alta',        emoji: '🟠', color: '#ea580c', match: r => r.coca != null && r.coca > 300 && r.coca <= 600 },
+    { key: 'cierre',      label: 'Cierre CSS',          emoji: '🟡', color: '#ca8a04', match: r => r.css != null && r.css < 30 },
+    { key: 'variabilidad',label: 'Alta variabilidad',   emoji: '⚪', color: '#6366f1', match: r => r.balance != null && r.balance > 5 },
+  ];
+
+  function ccsCategorize(r) {
+    for (const c of CCS_CATEGORIES) if (c.match(r)) return c;
+    return null;
+  }
+
   function ccsBaseLayout(yTitle) {
     return {
       paper_bgcolor: "#ffffff",
@@ -449,174 +463,366 @@
     return { rows, gaps, monthlyRows };
   }
 
-  function ccsFilteredRows() {
-    if (!CCS_DATA) return [];
-    if (!CCS_YEAR_FILTER) return CCS_DATA;
-    return CCS_DATA.filter(r => r.date.getFullYear() === CCS_YEAR_FILTER);
+  // ── HERO: estado del sistema HOY ──────────────────────────────────────
+  function ccsPercentile(arr, p) {
+    const v = arr.filter(x => x != null && !isNaN(x)).sort((a, b) => a - b);
+    if (!v.length) return null;
+    const idx = (p / 100) * (v.length - 1);
+    const lo = Math.floor(idx), hi = Math.ceil(idx);
+    if (lo === hi) return v[lo];
+    return v[lo] + (v[hi] - v[lo]) * (idx - lo);
   }
 
-  function ccsRenderKPIs() {
-    const rows = CCS_DATA || [];
-    if (!rows.length) return;
-    const last = rows[rows.length - 1];
-    const first = rows[0];
-    const totalDays = Math.round((last.date - first.date) / 86400000) + 1;
-    const avgCoca = ccsAvg(rows.map(r => r.coca));
-    const avgCSS = ccsAvg(rows.map(r => r.css));
-    const avgFrente = ccsAvg(rows.map(r => r.frente));
-    const highBal = rows.filter(r => r.balance != null && r.balance > 5).length;
-    const gapDays = (CCS_GAPS || []).reduce((s, g) => s + g.days, 0);
+  function ccsHistoricalCocaForSemaforo(today) {
+    if (!CCS_DATA) return [];
+    const start = new Date('2025-01-01T00:00:00');
+    return CCS_DATA
+      .filter(r => r.date >= start && r.date < today)
+      .map(r => r.coca)
+      .filter(v => v != null);
+  }
 
-    const kpis = [
-      { color: '#6366f1', val: rows.length, lbl: 'Días registrados', sub: `de ${totalDays} posibles` },
-      { color: CCS_COLORS.coca, val: ccsFmt(avgCoca), lbl: 'Prom. Río Coca', sub: 'm³/s histórico' },
-      { color: CCS_COLORS.css, val: ccsFmt(avgCSS), lbl: 'Prom. Derivado CCS', sub: 'm³/s histórico' },
-      { color: CCS_COLORS.frente, val: ccsFmt(avgFrente), lbl: 'Prom. Frente', sub: 'm³/s histórico' },
-      { color: CCS_COLORS.balance, val: highBal, lbl: 'Eventos avenida', sub: 'balance > 5 m³/s' },
-      { color: '#a855f7', val: gapDays, lbl: 'Días sin datos', sub: `${(CCS_GAPS || []).length} hueco(s)` },
+  function ccsRenderHero() {
+    if (!CCS_DATA || !CCS_DATA.length) return;
+    const last = CCS_DATA[CCS_DATA.length - 1];
+    const histCoca = ccsHistoricalCocaForSemaforo(last.date);
+    const p50 = ccsPercentile(histCoca, 50);
+    const p90 = ccsPercentile(histCoca, 90);
+
+    const cocaPctRel = (last.coca != null && p50 != null && p90 != null)
+      ? (last.coca > p90 ? 'rojo' : (last.coca > p50 ? 'ambar' : 'verde'))
+      : 'verde';
+    const cssAbs = (last.css != null)
+      ? (last.css < 30 ? 'rojo' : 'verde')
+      : 'verde';
+    const balAbs = (last.balance != null)
+      ? (last.balance > 10 ? 'rojo' : (last.balance > 2 ? 'ambar' : 'verde'))
+      : 'verde';
+    const derivPct = (last.coca && last.css != null && last.coca > 0)
+      ? (last.css / last.coca * 100)
+      : null;
+    const derivState = (derivPct != null)
+      ? (derivPct < 50 ? 'ambar' : 'verde')
+      : 'verde';
+
+    // Estado global = peor de los sub-estados
+    const states = [cocaPctRel, cssAbs, balAbs, derivState];
+    const overall = states.includes('rojo') ? 'rojo' : (states.includes('ambar') ? 'ambar' : 'verde');
+
+    const heroEl = $("ccsHero");
+    heroEl.classList.remove('hero-verde', 'hero-ambar', 'hero-rojo');
+    heroEl.classList.add(`hero-${overall}`);
+
+    const lightMap = { verde: '🟢', ambar: '🟡', rojo: '🔴' };
+    const labelMap = {
+      verde: 'OPERACIÓN NORMAL',
+      ambar: 'CONDICIÓN DE ATENCIÓN',
+      rojo:  'EVENTO CRÍTICO',
+    };
+    const msgMap = {
+      verde: 'Caudal y derivación dentro de rangos esperados.',
+      ambar: 'Caudal o derivación fuera del rango óptimo. Monitorear.',
+      rojo:  'Avenida extrema, captación cerrada o balance anómalo. Acción requerida.',
+    };
+
+    $("ccsHeroLight").textContent = lightMap[overall];
+    $("ccsHeroLabel").textContent = labelMap[overall];
+    $("ccsHeroDate").textContent = `· ${last.dateStr}`;
+    $("ccsHeroMsg").textContent = msgMap[overall];
+
+    $("ccsHeroCoca").innerHTML = `${ccsFmt(last.coca)} <span class="u">m³/s</span>`;
+    $("ccsHeroCss").innerHTML = `${ccsFmt(last.css)} <span class="u">m³/s</span>`;
+    $("ccsHeroCssPct").textContent = derivPct != null ? `${derivPct.toFixed(1)}% del Coca` : '— %';
+    $("ccsHeroFrente").innerHTML = `${ccsFmt(last.frente)} <span class="u">m³/s</span>`;
+
+    const subs = [
+      { lbl: 'Caudal',     state: cocaPctRel, hint: p90 != null ? `vs P90 ${ccsFmt(p90)}` : '—' },
+      { lbl: 'Derivación', state: derivState, hint: derivPct != null ? `${derivPct.toFixed(0)}%` : '—' },
+      { lbl: 'CSS',        state: cssAbs,     hint: 'capt. abierta' },
+      { lbl: 'Balance',    state: balAbs,     hint: `${ccsFmt(last.balance, 2)} m³/s` },
+    ];
+    $("ccsHeroSubstates").innerHTML = subs.map(s => `
+      <div class="ccs-sub state-${s.state}">
+        <span class="ccs-sub-dot"></span>
+        <span class="ccs-sub-lbl">${s.lbl}</span>
+        <span class="ccs-sub-hint">${s.hint}</span>
+      </div>`).join('');
+  }
+
+  // ── HIDROGRAMA CON BANDAS ESTACIONALES ────────────────────────────────
+  function ccsDayOfYear(d) {
+    // Día 1..366 según fecha. Feb 29 → 60.
+    const start = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const cur = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+    return Math.floor((cur - start) / 86400000) + 1;
+  }
+
+  function ccsRenderBands() {
+    if (!CCS_DATA || !CCS_DATA.length) return;
+    const serie = $("ccsBandSerie").value;
+    const last = CCS_DATA[CCS_DATA.length - 1];
+    const currentYear = last.date.getUTCFullYear();
+
+    // Agrupar valores históricos por día del año (años < currentYear)
+    const byDoy = new Map();
+    CCS_DATA.forEach(r => {
+      if (r.date.getUTCFullYear() >= currentYear) return;
+      const v = r[serie];
+      if (v == null) return;
+      const doy = ccsDayOfYear(r.date);
+      if (!byDoy.has(doy)) byDoy.set(doy, []);
+      byDoy.get(doy).push(v);
+    });
+
+    const doys = [];
+    const minArr = [], maxArr = [], p25Arr = [], p75Arr = [];
+    for (let d = 1; d <= 366; d++) {
+      if (!byDoy.has(d)) continue;
+      const vals = byDoy.get(d);
+      doys.push(d);
+      minArr.push(Math.min(...vals));
+      maxArr.push(Math.max(...vals));
+      p25Arr.push(ccsPercentile(vals, 25));
+      p75Arr.push(ccsPercentile(vals, 75));
+    }
+
+    // Año actual
+    const cur = CCS_DATA.filter(r => r.date.getUTCFullYear() === currentYear)
+      .sort((a, b) => a.date - b.date);
+    const curDoy = cur.map(r => ccsDayOfYear(r.date));
+    const curVal = cur.map(r => r[serie]);
+
+    const serieLabel = { coca: 'Río Coca', css: 'Derivado CSS', frente: 'Frente erosión' }[serie];
+    const serieColor = CCS_COLORS[serie];
+
+    const traces = [];
+    if (doys.length) {
+      // Banda min-max (más clara)
+      traces.push({
+        x: doys.concat([...doys].reverse()),
+        y: maxArr.concat([...minArr].reverse()),
+        fill: 'toself', fillcolor: 'rgba(148,163,184,0.18)',
+        line: { color: 'transparent' }, hoverinfo: 'skip',
+        name: 'Histórico min-max', type: 'scatter',
+      });
+      // Banda P25-P75 (más oscura)
+      traces.push({
+        x: doys.concat([...doys].reverse()),
+        y: p75Arr.concat([...p25Arr].reverse()),
+        fill: 'toself', fillcolor: 'rgba(100,116,139,0.32)',
+        line: { color: 'transparent' }, hoverinfo: 'skip',
+        name: 'Histórico P25-P75', type: 'scatter',
+      });
+    }
+    // Año actual
+    traces.push({
+      x: curDoy, y: curVal, type: 'scatter', mode: 'lines',
+      line: { color: serieColor, width: 2.5 },
+      name: `${currentYear}`,
+      customdata: cur.map(r => r.dateStr),
+      hovertemplate: `<b>%{customdata}</b><br>%{y:.1f} m³/s<extra></extra>`,
+    });
+    // Punto "hoy"
+    if (cur.length) {
+      const lastCur = cur[cur.length - 1];
+      traces.push({
+        x: [ccsDayOfYear(lastCur.date)], y: [lastCur[serie]],
+        type: 'scatter', mode: 'markers',
+        marker: { color: serieColor, size: 11, line: { color: '#fff', width: 2 } },
+        name: 'Hoy', hoverinfo: 'skip', showlegend: false,
+      });
+    }
+
+    const tickVals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
+    const tickText = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+    const layout = ccsBaseLayout('m³/s');
+    layout.xaxis = {
+      gridcolor: '#f1f5f9', tickfont: { color: '#475569' },
+      tickvals: tickVals, ticktext: tickText, range: [1, 366],
+    };
+    layout.title = { text: `${serieLabel} · ${currentYear} sobre histórico`, font: { color: '#1e293b', size: 14 }, x: 0 };
+
+    Plotly.react("ccsPlotBands", traces, layout, { responsive: true, displayModeBar: false });
+  }
+
+  // ── TASA DE DERIVACIÓN (% CSS/Coca + Coca como área en eje secundario) ──
+  function ccsRenderDeriv() {
+    if (!CCS_DATA || !CCS_DATA.length) return;
+    const dates = CCS_DATA.map(r => r.dateStr);
+    const pct = CCS_DATA.map(r => (r.coca && r.css != null && r.coca > 0) ? (r.css / r.coca * 100) : null);
+    const coca = CCS_DATA.map(r => r.coca);
+
+    const traces = [
+      {
+        x: dates, y: coca, type: 'scatter', mode: 'lines',
+        fill: 'tozeroy', fillcolor: 'rgba(239,68,68,0.10)',
+        line: { color: 'rgba(239,68,68,0.35)', width: 1 },
+        name: 'Coca (m³/s)', yaxis: 'y2',
+        hovertemplate: '%{y:.1f} m³/s<extra>Coca</extra>',
+      },
+      {
+        x: dates, y: pct, type: 'scatter', mode: 'lines',
+        line: { color: CCS_COLORS.css, width: 2 },
+        name: '% derivación', yaxis: 'y',
+        hovertemplate: '%{y:.1f}%<extra>CSS/Coca</extra>',
+      },
     ];
 
-    $("ccsKpis").innerHTML = kpis.map(k => `
-      <div class="ccs-kpi" style="--kpi-accent:${k.color}">
-        <div class="ccs-kpi-val">${k.val}</div>
-        <div class="ccs-kpi-lbl">${k.lbl}</div>
-        <div class="ccs-kpi-sub">${k.sub}</div>
-      </div>`).join('');
-
-    $("ccsInfoUltimo").textContent = `${last.dateStr} · Coca ${ccsFmt(last.coca)} m³/s`;
-    $("ccsInfoDias").textContent = rows.length;
-  }
-
-  function ccsRenderMain() {
-    const rows = ccsFilteredRows();
-    if (!rows.length) return;
-    const dates = rows.map(r => r.dateStr);
-    const traces = [
-      { name: 'Río Coca', y: rows.map(r => r.coca), line: { color: CCS_COLORS.coca, width: 2 } },
-      { name: 'Derivado CSS', y: rows.map(r => r.css), line: { color: CCS_COLORS.css, width: 2 } },
-      { name: 'Frente erosión', y: rows.map(r => r.frente), line: { color: CCS_COLORS.frente, width: 2 } },
-    ].map(t => ({
-      ...t, x: dates, type: 'scatter', mode: 'lines', connectgaps: false,
-      hovertemplate: `%{y:.1f} m³/s<extra>${t.name}</extra>`,
-    }));
-
-    const layout = ccsBaseLayout('m³/s');
-    layout.yaxis.type = CCS_Y_SCALE;
-    Plotly.react("ccsPlotMain", traces, layout, { responsive: true, displayModeBar: false });
-  }
-
-  function ccsRenderRecent() {
-    if (!CCS_DATA || !CCS_DATA.length) return;
-    const cutoff = new Date(CCS_DATA[CCS_DATA.length - 1].date);
-    cutoff.setDate(cutoff.getDate() - 90);
-    const rows = CCS_DATA.filter(r => r.date >= cutoff);
-    const dates = rows.map(r => r.dateStr);
-    const traces = [
-      { name: 'Río Coca', y: rows.map(r => r.coca), line: { color: CCS_COLORS.coca, width: 2 } },
-      { name: 'Derivado CSS', y: rows.map(r => r.css), line: { color: CCS_COLORS.css, width: 2 } },
-      { name: 'Frente erosión', y: rows.map(r => r.frente), line: { color: CCS_COLORS.frente, width: 2 } },
-    ].map(t => ({
-      ...t, x: dates, type: 'scatter', mode: 'lines', connectgaps: false,
-      hovertemplate: `%{y:.1f} m³/s<extra>${t.name}</extra>`,
-    }));
-    const layout = ccsBaseLayout('m³/s');
-    layout.title = { text: 'Últimos 90 días', font: { color: '#1e293b', size: 14 }, x: 0 };
-    Plotly.react("ccsPlotRecent", traces, layout, { responsive: true, displayModeBar: false });
-  }
-
-  function ccsRenderBox() {
-    if (!CCS_DATA) return;
-    const rows = CCS_DATA;
-    const traces = [
-      { name: 'Río Coca', y: rows.map(r => r.coca).filter(v => v != null), marker: { color: CCS_COLORS.coca } },
-      { name: 'Derivado CSS', y: rows.map(r => r.css).filter(v => v != null), marker: { color: CCS_COLORS.css } },
-      { name: 'Frente erosión', y: rows.map(r => r.frente).filter(v => v != null), marker: { color: CCS_COLORS.frente } },
-    ].map(t => ({ ...t, type: 'box', boxmean: 'sd' }));
-    const layout = ccsBaseLayout('m³/s');
-    layout.xaxis = { gridcolor: '#f1f5f9', tickfont: { color: '#475569' } };
-    layout.title = { text: 'Distribución histórica', font: { color: '#1e293b', size: 14 }, x: 0 };
-    layout.showlegend = false;
-    Plotly.react("ccsPlotBox", traces, layout, { responsive: true, displayModeBar: false });
-  }
-
-  function ccsRenderMonthly() {
-    if (!CCS_MONTHLY) return;
-    const keys = CCS_MONTHLY.map(r => r.key);
-    const traces = [
-      { name: 'Río Coca', y: CCS_MONTHLY.map(r => r.coca), marker: { color: CCS_COLORS.coca } },
-      { name: 'Derivado CSS', y: CCS_MONTHLY.map(r => r.css), marker: { color: CCS_COLORS.css } },
-      { name: 'Frente erosión', y: CCS_MONTHLY.map(r => r.frente), marker: { color: CCS_COLORS.frente } },
-    ].map(t => ({ ...t, x: keys, type: 'bar', hovertemplate: `%{y:.1f} m³/s<extra>${t.name}</extra>` }));
-    const layout = ccsBaseLayout('m³/s');
-    layout.barmode = 'group';
-    layout.xaxis = { gridcolor: '#f1f5f9', tickfont: { color: '#475569' }, tickangle: -40 };
-    layout.title = { text: 'Promedio mensual', font: { color: '#1e293b', size: 14 }, x: 0 };
-    Plotly.react("ccsPlotMonthly", traces, layout, { responsive: true, displayModeBar: false });
-  }
-
-  function ccsRenderBalance() {
-    const rows = ccsFilteredRows();
-    const dates = rows.map(r => r.dateStr);
-    const vals = rows.map(r => r.balance);
-    const colors = vals.map(v => v == null ? 'transparent' : (v > 5 ? '#ef4444' : (v > 1 ? '#f59e0b' : '#10b981')));
-    const layout = ccsBaseLayout('Balance |Coca − CSS − Frente| m³/s');
-    layout.title = { text: 'Balance diario', font: { color: '#1e293b', size: 14 }, x: 0 };
-    layout.showlegend = false;
-    Plotly.react("ccsPlotBalance", [{
-      x: dates, y: vals, type: 'bar',
-      marker: { color: colors },
-      hovertemplate: '%{y:.2f} m³/s<extra>Balance</extra>',
-    }], layout, { responsive: true, displayModeBar: false });
-  }
-
-  function ccsRenderHighTable() {
-    if (!CCS_DATA) return;
-    const rows = CCS_DATA.filter(r => r.balance != null && r.balance > 5)
-      .sort((a, b) => b.balance - a.balance);
-    $("ccsHighCount").textContent = rows.length;
-    const cond = (r) => {
-      if (r.css != null && r.css < 30) return 'CSS cerrada (sedimentos)';
-      if (r.coca != null && r.coca > 600) return 'Avenida extrema';
-      if (r.coca != null && r.coca > 300) return 'Avenida alta';
-      return 'Alta variabilidad';
+    const layout = ccsBaseLayout('% derivación');
+    layout.xaxis.type = 'date';
+    layout.yaxis = {
+      title: { text: '% CSS/Coca', font: { color: '#475569' } },
+      gridcolor: '#f1f5f9', tickfont: { color: '#475569' },
+      range: [0, 110], zeroline: false,
     };
-    $("ccsHighRows").innerHTML = rows.length
-      ? rows.map(r => `
-        <tr>
-          <td>${r.dateStr}</td>
-          <td style="color:${CCS_COLORS.coca}">${ccsFmt(r.coca)}</td>
-          <td style="color:${CCS_COLORS.css}">${ccsFmt(r.css)}</td>
-          <td style="color:${CCS_COLORS.frente}">${ccsFmt(r.frente)}</td>
-          <td><span class="ccs-tag hi">${ccsFmt(r.balance, 2)}</span></td>
-          <td><span class="ccs-tag">${cond(r)}</span></td>
-        </tr>`).join('')
-      : `<tr><td colspan="6" class="ccs-empty">Sin eventos.</td></tr>`;
+    layout.yaxis2 = {
+      title: { text: 'Coca (m³/s)', font: { color: '#94a3b8' } },
+      overlaying: 'y', side: 'right',
+      tickfont: { color: '#94a3b8' }, showgrid: false,
+    };
+    layout.shapes = [
+      { type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: 75, y1: 75,
+        line: { color: '#10b981', width: 1.5, dash: 'dash' } },
+      { type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: 100, y1: 100,
+        line: { color: '#94a3b8', width: 1, dash: 'dot' } },
+    ];
+    layout.annotations = [
+      { xref: 'paper', x: 0.99, yref: 'y', y: 75, text: 'óptimo 75%', showarrow: false, font: { color: '#10b981', size: 10 }, xanchor: 'right', yanchor: 'bottom' },
+      { xref: 'paper', x: 0.99, yref: 'y', y: 100, text: 'máx 100%', showarrow: false, font: { color: '#94a3b8', size: 10 }, xanchor: 'right', yanchor: 'bottom' },
+    ];
+    layout.legend = { orientation: 'h', y: -0.22, font: { color: '#475569', size: 11 } };
+
+    Plotly.react("ccsPlotDeriv", traces, layout, { responsive: true, displayModeBar: false });
   }
 
-  function ccsRenderGaps() {
-    const gaps = CCS_GAPS || [];
-    $("ccsGapCount").textContent = gaps.length;
-    const sd = (d) => d.toISOString().slice(0, 10);
-    $("ccsGapRows").innerHTML = gaps.length
-      ? gaps.map(g => `
-        <tr>
-          <td>${sd(g.from)}</td>
-          <td>${sd(g.to)}</td>
-          <td><span class="ccs-tag gap">${g.days} día${g.days > 1 ? 's' : ''}</span></td>
-        </tr>`).join('')
-      : `<tr><td colspan="3" class="ccs-empty">Sin huecos.</td></tr>`;
+  // ── COMPARADOR INTERANUAL (spaghetti) ─────────────────────────────────
+  function ccsRenderSpag() {
+    if (!CCS_DATA || !CCS_DATA.length) return;
+    const serie = $("ccsSpagSerie").value;
+    const highlightYear = Number($("ccsSpagYear").value);
+
+    const years = [...new Set(CCS_DATA.map(r => r.date.getUTCFullYear()))].sort();
+    const traces = [];
+
+    years.forEach(y => {
+      const rows = CCS_DATA.filter(r => r.date.getUTCFullYear() === y && r[serie] != null)
+        .sort((a, b) => a.date - b.date);
+      if (!rows.length) return;
+      const isHi = (y === highlightYear);
+      traces.push({
+        x: rows.map(r => ccsDayOfYear(r.date)),
+        y: rows.map(r => r[serie]),
+        customdata: rows.map(r => r.dateStr),
+        type: 'scatter', mode: 'lines',
+        name: String(y),
+        line: { color: isHi ? CCS_COLORS[serie] : 'rgba(148,163,184,0.45)', width: isHi ? 2.5 : 1 },
+        hovertemplate: isHi
+          ? `<b>%{customdata}</b><br>%{y:.1f} m³/s<extra>${y}</extra>`
+          : `<b>${y}</b> · %{y:.1f}<extra></extra>`,
+      });
+    });
+
+    const tickVals = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
+    const tickText = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const layout = ccsBaseLayout('m³/s');
+    layout.xaxis = {
+      gridcolor: '#f1f5f9', tickfont: { color: '#475569' },
+      tickvals: tickVals, ticktext: tickText, range: [1, 366],
+    };
+    Plotly.react("ccsPlotSpag", traces, layout, { responsive: true, displayModeBar: false });
+  }
+
+  // ── TABLA DE EVENTOS CRÍTICOS (chips + top 10 por categoría + ver todos) ─
+  let CCS_EVENT_FILTER = new Set(CCS_CATEGORIES.map(c => c.key));
+  let CCS_EVENT_SHOW_ALL = false;
+
+  function ccsBuildEvents() {
+    if (!CCS_DATA) return [];
+    const all = [];
+    CCS_DATA.forEach(r => {
+      const cat = ccsCategorize(r);
+      if (!cat) return;
+      // Severidad: para extrema/alta = coca; para cierre = -css (más bajo es peor); para variabilidad = balance
+      let sev = 0;
+      if (cat.key === 'extrema' || cat.key === 'alta') sev = r.coca;
+      else if (cat.key === 'cierre') sev = -r.css;
+      else if (cat.key === 'variabilidad') sev = r.balance;
+      all.push({ ...r, _cat: cat, _sev: sev });
+    });
+    return all;
+  }
+
+  function ccsRenderEventChips() {
+    const events = ccsBuildEvents();
+    const counts = {};
+    CCS_CATEGORIES.forEach(c => counts[c.key] = events.filter(e => e._cat.key === c.key).length);
+    $("ccsEventChips").innerHTML = CCS_CATEGORIES.map(c => {
+      const active = CCS_EVENT_FILTER.has(c.key);
+      return `<button class="ccs-evchip ${active ? 'active' : ''}" data-cat="${c.key}" style="--cat-color:${c.color}">
+        <span class="ccs-evchip-dot"></span>
+        ${c.label}
+        <span class="ccs-evchip-count">${counts[c.key]}</span>
+      </button>`;
+    }).join('');
+    $("ccsEventChips").querySelectorAll('.ccs-evchip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cat = btn.dataset.cat;
+        if (CCS_EVENT_FILTER.has(cat)) CCS_EVENT_FILTER.delete(cat);
+        else CCS_EVENT_FILTER.add(cat);
+        if (!CCS_EVENT_FILTER.size) CCS_CATEGORIES.forEach(c => CCS_EVENT_FILTER.add(c.key));
+        ccsRenderEventChips();
+        ccsRenderEventTable();
+      });
+    });
+  }
+
+  function ccsRenderEventTable() {
+    const events = ccsBuildEvents();
+    const filtered = events.filter(e => CCS_EVENT_FILTER.has(e._cat.key));
+
+    // Top 10 por categoría (por severidad descendente), o todos si flag activo
+    let toShow = [];
+    if (CCS_EVENT_SHOW_ALL) {
+      toShow = filtered.slice().sort((a, b) => b.date - a.date);
+    } else {
+      const byCat = {};
+      filtered.forEach(e => {
+        if (!byCat[e._cat.key]) byCat[e._cat.key] = [];
+        byCat[e._cat.key].push(e);
+      });
+      Object.values(byCat).forEach(arr => {
+        arr.sort((a, b) => b._sev - a._sev);
+        toShow.push(...arr.slice(0, 10));
+      });
+      toShow.sort((a, b) => b.date - a.date);
+    }
+
+    $("ccsEventRows").innerHTML = toShow.length ? toShow.map(e => `
+      <tr>
+        <td>${e.dateStr}</td>
+        <td><span class="ccs-cat-badge" style="--cat-color:${e._cat.color}">${e._cat.emoji} ${e._cat.label}</span></td>
+        <td style="color:${CCS_COLORS.coca}">${ccsFmt(e.coca)}</td>
+        <td style="color:${CCS_COLORS.css}">${ccsFmt(e.css)}</td>
+        <td style="color:${CCS_COLORS.frente}">${ccsFmt(e.frente)}</td>
+        <td>${ccsFmt(e.balance, 2)}</td>
+        <td><span class="ccs-sev-bar" style="--sev:${Math.min(100, Math.abs(e._sev) / 10)}%; --cat-color:${e._cat.color}"></span></td>
+      </tr>`).join('') : `<tr><td colspan="7" class="ccs-empty">Sin eventos en las categorías seleccionadas.</td></tr>`;
+
+    $("ccsEventsMeta").textContent = CCS_EVENT_SHOW_ALL
+      ? `Mostrando ${toShow.length} de ${filtered.length} eventos`
+      : `Mostrando top 10 por categoría · ${filtered.length} eventos en total`;
+    $("ccsShowAllBtn").textContent = CCS_EVENT_SHOW_ALL ? 'Ver solo top 10' : `Ver todos (${filtered.length})`;
   }
 
   function drawCCS() {
     if (!CCS_DATA) return;
-    ccsRenderKPIs();
-    ccsRenderMain();
-    ccsRenderRecent();
-    ccsRenderBox();
-    ccsRenderMonthly();
-    ccsRenderBalance();
-    ccsRenderHighTable();
-    ccsRenderGaps();
+    ccsRenderHero();
+    ccsRenderBands();
+    ccsRenderDeriv();
+    ccsRenderSpag();
+    ccsRenderEventChips();
+    ccsRenderEventTable();
   }
 
   function baseLayout(title, yTitle, isDateX) {
@@ -709,23 +915,23 @@
         CCS_GAPS = prep.gaps;
         CCS_MONTHLY = prep.monthlyRows;
 
-        const years = [...new Set(CCS_DATA.map(r => r.date.getFullYear()))].sort((a, b) => b - a);
-        const selCCSYear = $("ccsYear");
-        if (selCCSYear) {
-          years.forEach(y => addOption(selCCSYear, String(y), String(y)));
-          selCCSYear.addEventListener("change", () => {
-            CCS_YEAR_FILTER = selCCSYear.value ? Number(selCCSYear.value) : null;
-            ccsRenderMain();
-            ccsRenderBalance();
-          });
+        const years = [...new Set(CCS_DATA.map(r => r.date.getUTCFullYear()))].sort((a, b) => b - a);
+        const selSpagYear = $("ccsSpagYear");
+        if (selSpagYear) {
+          years.forEach(y => addOption(selSpagYear, String(y), String(y)));
+          if (years.length) selSpagYear.value = String(years[0]); // año más reciente
+          selSpagYear.addEventListener("change", ccsRenderSpag);
         }
-        const selCCSScale = $("ccsScale");
-        if (selCCSScale) {
-          selCCSScale.addEventListener("change", () => {
-            CCS_Y_SCALE = selCCSScale.value;
-            ccsRenderMain();
-          });
-        }
+        const selBandSerie = $("ccsBandSerie");
+        if (selBandSerie) selBandSerie.addEventListener("change", ccsRenderBands);
+        const selSpagSerie = $("ccsSpagSerie");
+        if (selSpagSerie) selSpagSerie.addEventListener("change", ccsRenderSpag);
+
+        const showAllBtn = $("ccsShowAllBtn");
+        if (showAllBtn) showAllBtn.addEventListener("click", () => {
+          CCS_EVENT_SHOW_ALL = !CCS_EVENT_SHOW_ALL;
+          ccsRenderEventTable();
+        });
       }
 
       const allDates = [...PROD_DATA, ...HIDRO_DATA].map(r => r.date).filter(Boolean);

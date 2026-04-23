@@ -179,86 +179,125 @@
 
       <!-- Módulo CCS · Río Coca -->
       <section class="module-content" id="tab-ccs">
+
+        <!-- HERO: Estado del sistema HOY -->
+        <div class="ccs-hero" id="ccsHero">
+          <div class="ccs-hero-status">
+            <div class="ccs-hero-light" id="ccsHeroLight">⚪</div>
+            <div class="ccs-hero-info">
+              <div class="ccs-hero-title">
+                <span id="ccsHeroLabel">Cargando…</span>
+                <span class="ccs-hero-date" id="ccsHeroDate">—</span>
+              </div>
+              <div class="ccs-hero-msg" id="ccsHeroMsg">Esperando datos</div>
+            </div>
+          </div>
+          <div class="ccs-hero-metrics">
+            <div class="ccs-hero-metric">
+              <div class="ccs-hero-metric-lbl">Río Coca</div>
+              <div class="ccs-hero-metric-val" id="ccsHeroCoca">— <span class="u">m³/s</span></div>
+            </div>
+            <div class="ccs-hero-metric">
+              <div class="ccs-hero-metric-lbl">Derivado CSS</div>
+              <div class="ccs-hero-metric-val" id="ccsHeroCss">— <span class="u">m³/s</span></div>
+              <div class="ccs-hero-metric-sub" id="ccsHeroCssPct">— %</div>
+            </div>
+            <div class="ccs-hero-metric">
+              <div class="ccs-hero-metric-lbl">Frente erosión</div>
+              <div class="ccs-hero-metric-val" id="ccsHeroFrente">— <span class="u">m³/s</span></div>
+            </div>
+          </div>
+          <div class="ccs-hero-substates" id="ccsHeroSubstates"></div>
+        </div>
+
+        <!-- Hidrograma con bandas estacionales -->
         <div class="module-card">
           <div class="module-header">
             <div class="module-title">
-              <h2>Monitoreo Río Coca</h2>
-              <span>Caudales diarios · Coca / Derivado CCS / Frente de erosión (m³/s)</span>
+              <h2>Hidrograma estacional</h2>
+              <span>Caudal del año actual sobre el rango histórico (min-max y P25-P75)</span>
             </div>
             <div class="controls-row">
               <div class="control-group">
-                <label for="ccsYear">Año</label>
-                <select id="ccsYear">
-                  <option value="">Todos</option>
-                </select>
-              </div>
-              <div class="control-group">
-                <label for="ccsScale">Escala Y</label>
-                <select id="ccsScale">
-                  <option value="linear">Lineal</option>
-                  <option value="log">Logarítmica</option>
+                <label for="ccsBandSerie">Serie</label>
+                <select id="ccsBandSerie">
+                  <option value="coca">Río Coca</option>
+                  <option value="css">Derivado CSS</option>
+                  <option value="frente">Frente erosión</option>
                 </select>
               </div>
             </div>
           </div>
+          <div class="plot-container" id="ccsPlotBands"></div>
+        </div>
 
-          <div class="ccs-info-strip">
-            <span>Sistema: <strong>Coca Codo Sinclair (1.500 MW)</strong></span>
-            <span>Frente de erosión: <strong>Km 3+600 (desde ago 2025)</strong></span>
-            <span>Último registro: <strong id="ccsInfoUltimo">—</strong></span>
-            <span>Días monitoreados: <strong id="ccsInfoDias">—</strong></span>
-          </div>
-
-          <div class="ccs-kpis" id="ccsKpis"></div>
-
-          <div class="plot-container" id="ccsPlotMain"></div>
-
-          <div class="charts-row">
-            <div class="plot-container plot-md" id="ccsPlotRecent"></div>
-            <div class="plot-container plot-md" id="ccsPlotBox"></div>
-          </div>
-
-          <div class="charts-row">
-            <div class="plot-container plot-md" id="ccsPlotMonthly"></div>
-            <div class="plot-container plot-md" id="ccsPlotBalance"></div>
-          </div>
-
-          <div class="ccs-tables">
-            <div class="ccs-table-card">
-              <div class="ccs-table-header">
-                <span>Eventos de alta variabilidad hidráulica</span>
-                <span class="ccs-chip warn" id="ccsHighCount">0</span>
-              </div>
-              <div class="ccs-tbl-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Fecha</th>
-                      <th>Coca</th>
-                      <th>CSS</th>
-                      <th>Frente</th>
-                      <th>Balance</th>
-                      <th>Condición</th>
-                    </tr>
-                  </thead>
-                  <tbody id="ccsHighRows"></tbody>
-                </table>
+        <!-- Tasa de derivación + Spaghetti -->
+        <div class="charts-row ccs-row-equal">
+          <div class="module-card">
+            <div class="module-header">
+              <div class="module-title">
+                <h2>Tasa de derivación CSS/Coca</h2>
+                <span>% derivado (izq.) sobre caudal Coca (der., área)</span>
               </div>
             </div>
-            <div class="ccs-table-card">
-              <div class="ccs-table-header">
-                <span>Huecos de fechas</span>
-                <span class="ccs-chip warn" id="ccsGapCount">0</span>
+            <div class="plot-container plot-md" id="ccsPlotDeriv"></div>
+          </div>
+          <div class="module-card">
+            <div class="module-header">
+              <div class="module-title">
+                <h2>Comparador interanual</h2>
+                <span>Año destacado vs años en gris</span>
               </div>
-              <div class="ccs-tbl-wrap">
-                <table>
-                  <thead><tr><th>Desde</th><th>Hasta</th><th>Días</th></tr></thead>
-                  <tbody id="ccsGapRows"></tbody>
-                </table>
+              <div class="controls-row">
+                <div class="control-group">
+                  <label for="ccsSpagSerie">Serie</label>
+                  <select id="ccsSpagSerie">
+                    <option value="coca">Río Coca</option>
+                    <option value="css">Derivado CSS</option>
+                    <option value="frente">Frente erosión</option>
+                  </select>
+                </div>
+                <div class="control-group">
+                  <label for="ccsSpagYear">Año destacado</label>
+                  <select id="ccsSpagYear"></select>
+                </div>
               </div>
             </div>
+            <div class="plot-container plot-md" id="ccsPlotSpag"></div>
           </div>
         </div>
+
+        <!-- Eventos críticos: tabla única con filtro chips -->
+        <div class="module-card">
+          <div class="module-header">
+            <div class="module-title">
+              <h2>Eventos críticos</h2>
+              <span>Top 10 más severos por categoría · click en chip para filtrar</span>
+            </div>
+            <div class="ccs-event-chips" id="ccsEventChips"></div>
+          </div>
+          <div class="ccs-tbl-wrap">
+            <table class="ccs-events-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Categoría</th>
+                  <th>Coca</th>
+                  <th>CSS</th>
+                  <th>Frente</th>
+                  <th>Balance</th>
+                  <th>Severidad</th>
+                </tr>
+              </thead>
+              <tbody id="ccsEventRows"></tbody>
+            </table>
+          </div>
+          <div class="ccs-show-all-row">
+            <button class="ccs-show-all" id="ccsShowAllBtn">Ver todos</button>
+            <span class="ccs-events-meta" id="ccsEventsMeta"></span>
+          </div>
+        </div>
+
       </section>
     </main>
   </div>
