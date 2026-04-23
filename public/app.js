@@ -12,6 +12,15 @@
     meta: DATA_BASE + "meta.json",
     prod: DATA_BASE + "produccion_diaria_larga.csv",
     hidro: DATA_BASE + "hidrologia_diaria_larga.csv",
+    ccs: DATA_BASE + "ccs_caudales_diarios.csv",
+  };
+
+  const CCS_COLORS = {
+    coca: "#ef4444",
+    css: "#3b82f6",
+    frente: "#10b981",
+    balance: "#f59e0b",
+    accent: "#6366f1",
   };
 
   // ---- DOM References ----
@@ -59,6 +68,11 @@
   let META = null;
   let PROD_DATA = null;
   let HIDRO_DATA = null;
+  let CCS_DATA = null;
+  let CCS_GAPS = null;
+  let CCS_MONTHLY = null;
+  let CCS_YEAR_FILTER = null;
+  let CCS_Y_SCALE = "linear";
 
   // ---- Tab Logic ----
   tabBtns.forEach(btn => {
@@ -73,7 +87,8 @@
 
       // Force restyle of plots when switching tabs
       if (tabId === "prod") drawProduction();
-      else drawHidrology();
+      else if (tabId === "hidro") drawHidrology();
+      else if (tabId === "ccs") drawCCS();
     });
   });
 
@@ -358,6 +373,252 @@
     Plotly.react(plotHidroMain, traces, layout, { responsive: true, displayModeBar: false });
   }
 
+  // ---- CCS (Río Coca) ----
+  function ccsBaseLayout(yTitle) {
+    return {
+      paper_bgcolor: "#ffffff",
+      plot_bgcolor: "#ffffff",
+      font: { family: 'Outfit, sans-serif', color: '#1e293b', size: 12 },
+      margin: { l: 60, r: 30, t: 30, b: 50 },
+      xaxis: { type: 'date', gridcolor: '#f1f5f9', tickfont: { color: '#475569' } },
+      yaxis: { title: { text: yTitle, font: { color: '#475569' } }, gridcolor: '#f1f5f9', tickfont: { color: '#475569' }, zeroline: false },
+      legend: { orientation: 'h', y: -0.18, font: { color: '#475569', size: 11 } },
+      hovermode: 'x unified',
+    };
+  }
+
+  function ccsAvg(arr) {
+    const v = arr.filter(x => x != null && !isNaN(x));
+    return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+  }
+
+  function ccsFmt(n, d = 1) {
+    if (n == null || isNaN(n)) return '—';
+    return n.toLocaleString('es-EC', { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+
+  function ccsPrepare(raw) {
+    const rows = raw.map(r => {
+      const dateStr = (r.date || "").trim();
+      if (!dateStr) return null;
+      const date = new Date(dateStr + "T00:00:00");
+      if (isNaN(date)) return null;
+      const coca = parseNumber(r.coca);
+      const css = parseNumber(r.css);
+      const frente = parseNumber(r.frente);
+      const balance = parseNumber(r.balance);
+      return {
+        dateStr, date,
+        coca: isNaN(coca) ? null : coca,
+        css: isNaN(css) ? null : css,
+        frente: isNaN(frente) ? null : frente,
+        balance: isNaN(balance) ? null : balance,
+        status: (r.status || "").trim(),
+      };
+    }).filter(Boolean).sort((a, b) => a.date - b.date);
+
+    const gaps = [];
+    for (let i = 1; i < rows.length; i++) {
+      const diff = Math.round((rows[i].date - rows[i - 1].date) / 86400000);
+      if (diff > 1) {
+        gaps.push({
+          from: new Date(rows[i - 1].date.getTime() + 86400000),
+          to: new Date(rows[i].date.getTime() - 86400000),
+          days: diff - 1,
+        });
+      }
+    }
+
+    const monthly = {};
+    rows.forEach(r => {
+      const key = `${r.date.getFullYear()}-${String(r.date.getMonth() + 1).padStart(2, '0')}`;
+      if (!monthly[key]) monthly[key] = { coca: [], css: [], frente: [], balance: [] };
+      if (r.coca != null) monthly[key].coca.push(r.coca);
+      if (r.css != null) monthly[key].css.push(r.css);
+      if (r.frente != null) monthly[key].frente.push(r.frente);
+      if (r.balance != null) monthly[key].balance.push(r.balance);
+    });
+    const monthlyRows = Object.entries(monthly).sort().map(([k, v]) => ({
+      key: k,
+      coca: ccsAvg(v.coca),
+      css: ccsAvg(v.css),
+      frente: ccsAvg(v.frente),
+      balance: ccsAvg(v.balance),
+    }));
+
+    return { rows, gaps, monthlyRows };
+  }
+
+  function ccsFilteredRows() {
+    if (!CCS_DATA) return [];
+    if (!CCS_YEAR_FILTER) return CCS_DATA;
+    return CCS_DATA.filter(r => r.date.getFullYear() === CCS_YEAR_FILTER);
+  }
+
+  function ccsRenderKPIs() {
+    const rows = CCS_DATA || [];
+    if (!rows.length) return;
+    const last = rows[rows.length - 1];
+    const first = rows[0];
+    const totalDays = Math.round((last.date - first.date) / 86400000) + 1;
+    const avgCoca = ccsAvg(rows.map(r => r.coca));
+    const avgCSS = ccsAvg(rows.map(r => r.css));
+    const avgFrente = ccsAvg(rows.map(r => r.frente));
+    const highBal = rows.filter(r => r.balance != null && r.balance > 5).length;
+    const gapDays = (CCS_GAPS || []).reduce((s, g) => s + g.days, 0);
+
+    const kpis = [
+      { color: '#6366f1', val: rows.length, lbl: 'Días registrados', sub: `de ${totalDays} posibles` },
+      { color: CCS_COLORS.coca, val: ccsFmt(avgCoca), lbl: 'Prom. Río Coca', sub: 'm³/s histórico' },
+      { color: CCS_COLORS.css, val: ccsFmt(avgCSS), lbl: 'Prom. Derivado CCS', sub: 'm³/s histórico' },
+      { color: CCS_COLORS.frente, val: ccsFmt(avgFrente), lbl: 'Prom. Frente', sub: 'm³/s histórico' },
+      { color: CCS_COLORS.balance, val: highBal, lbl: 'Eventos avenida', sub: 'balance > 5 m³/s' },
+      { color: '#a855f7', val: gapDays, lbl: 'Días sin datos', sub: `${(CCS_GAPS || []).length} hueco(s)` },
+    ];
+
+    $("ccsKpis").innerHTML = kpis.map(k => `
+      <div class="ccs-kpi" style="--kpi-accent:${k.color}">
+        <div class="ccs-kpi-val">${k.val}</div>
+        <div class="ccs-kpi-lbl">${k.lbl}</div>
+        <div class="ccs-kpi-sub">${k.sub}</div>
+      </div>`).join('');
+
+    $("ccsInfoUltimo").textContent = `${last.dateStr} · Coca ${ccsFmt(last.coca)} m³/s`;
+    $("ccsInfoDias").textContent = rows.length;
+  }
+
+  function ccsRenderMain() {
+    const rows = ccsFilteredRows();
+    if (!rows.length) return;
+    const dates = rows.map(r => r.dateStr);
+    const traces = [
+      { name: 'Río Coca', y: rows.map(r => r.coca), line: { color: CCS_COLORS.coca, width: 2 } },
+      { name: 'Derivado CSS', y: rows.map(r => r.css), line: { color: CCS_COLORS.css, width: 2 } },
+      { name: 'Frente erosión', y: rows.map(r => r.frente), line: { color: CCS_COLORS.frente, width: 2 } },
+    ].map(t => ({
+      ...t, x: dates, type: 'scatter', mode: 'lines', connectgaps: false,
+      hovertemplate: `%{y:.1f} m³/s<extra>${t.name}</extra>`,
+    }));
+
+    const layout = ccsBaseLayout('m³/s');
+    layout.yaxis.type = CCS_Y_SCALE;
+    Plotly.react("ccsPlotMain", traces, layout, { responsive: true, displayModeBar: false });
+  }
+
+  function ccsRenderRecent() {
+    if (!CCS_DATA || !CCS_DATA.length) return;
+    const cutoff = new Date(CCS_DATA[CCS_DATA.length - 1].date);
+    cutoff.setDate(cutoff.getDate() - 90);
+    const rows = CCS_DATA.filter(r => r.date >= cutoff);
+    const dates = rows.map(r => r.dateStr);
+    const traces = [
+      { name: 'Río Coca', y: rows.map(r => r.coca), line: { color: CCS_COLORS.coca, width: 2 } },
+      { name: 'Derivado CSS', y: rows.map(r => r.css), line: { color: CCS_COLORS.css, width: 2 } },
+      { name: 'Frente erosión', y: rows.map(r => r.frente), line: { color: CCS_COLORS.frente, width: 2 } },
+    ].map(t => ({
+      ...t, x: dates, type: 'scatter', mode: 'lines', connectgaps: false,
+      hovertemplate: `%{y:.1f} m³/s<extra>${t.name}</extra>`,
+    }));
+    const layout = ccsBaseLayout('m³/s');
+    layout.title = { text: 'Últimos 90 días', font: { color: '#1e293b', size: 14 }, x: 0 };
+    Plotly.react("ccsPlotRecent", traces, layout, { responsive: true, displayModeBar: false });
+  }
+
+  function ccsRenderBox() {
+    if (!CCS_DATA) return;
+    const rows = CCS_DATA;
+    const traces = [
+      { name: 'Río Coca', y: rows.map(r => r.coca).filter(v => v != null), marker: { color: CCS_COLORS.coca } },
+      { name: 'Derivado CSS', y: rows.map(r => r.css).filter(v => v != null), marker: { color: CCS_COLORS.css } },
+      { name: 'Frente erosión', y: rows.map(r => r.frente).filter(v => v != null), marker: { color: CCS_COLORS.frente } },
+    ].map(t => ({ ...t, type: 'box', boxmean: 'sd' }));
+    const layout = ccsBaseLayout('m³/s');
+    layout.xaxis = { gridcolor: '#f1f5f9', tickfont: { color: '#475569' } };
+    layout.title = { text: 'Distribución histórica', font: { color: '#1e293b', size: 14 }, x: 0 };
+    layout.showlegend = false;
+    Plotly.react("ccsPlotBox", traces, layout, { responsive: true, displayModeBar: false });
+  }
+
+  function ccsRenderMonthly() {
+    if (!CCS_MONTHLY) return;
+    const keys = CCS_MONTHLY.map(r => r.key);
+    const traces = [
+      { name: 'Río Coca', y: CCS_MONTHLY.map(r => r.coca), marker: { color: CCS_COLORS.coca } },
+      { name: 'Derivado CSS', y: CCS_MONTHLY.map(r => r.css), marker: { color: CCS_COLORS.css } },
+      { name: 'Frente erosión', y: CCS_MONTHLY.map(r => r.frente), marker: { color: CCS_COLORS.frente } },
+    ].map(t => ({ ...t, x: keys, type: 'bar', hovertemplate: `%{y:.1f} m³/s<extra>${t.name}</extra>` }));
+    const layout = ccsBaseLayout('m³/s');
+    layout.barmode = 'group';
+    layout.xaxis = { gridcolor: '#f1f5f9', tickfont: { color: '#475569' }, tickangle: -40 };
+    layout.title = { text: 'Promedio mensual', font: { color: '#1e293b', size: 14 }, x: 0 };
+    Plotly.react("ccsPlotMonthly", traces, layout, { responsive: true, displayModeBar: false });
+  }
+
+  function ccsRenderBalance() {
+    const rows = ccsFilteredRows();
+    const dates = rows.map(r => r.dateStr);
+    const vals = rows.map(r => r.balance);
+    const colors = vals.map(v => v == null ? 'transparent' : (v > 5 ? '#ef4444' : (v > 1 ? '#f59e0b' : '#10b981')));
+    const layout = ccsBaseLayout('Balance |Coca − CSS − Frente| m³/s');
+    layout.title = { text: 'Balance diario', font: { color: '#1e293b', size: 14 }, x: 0 };
+    layout.showlegend = false;
+    Plotly.react("ccsPlotBalance", [{
+      x: dates, y: vals, type: 'bar',
+      marker: { color: colors },
+      hovertemplate: '%{y:.2f} m³/s<extra>Balance</extra>',
+    }], layout, { responsive: true, displayModeBar: false });
+  }
+
+  function ccsRenderHighTable() {
+    if (!CCS_DATA) return;
+    const rows = CCS_DATA.filter(r => r.balance != null && r.balance > 5)
+      .sort((a, b) => b.balance - a.balance);
+    $("ccsHighCount").textContent = rows.length;
+    const cond = (r) => {
+      if (r.css != null && r.css < 30) return 'CSS cerrada (sedimentos)';
+      if (r.coca != null && r.coca > 600) return 'Avenida extrema';
+      if (r.coca != null && r.coca > 300) return 'Avenida alta';
+      return 'Alta variabilidad';
+    };
+    $("ccsHighRows").innerHTML = rows.length
+      ? rows.map(r => `
+        <tr>
+          <td>${r.dateStr}</td>
+          <td style="color:${CCS_COLORS.coca}">${ccsFmt(r.coca)}</td>
+          <td style="color:${CCS_COLORS.css}">${ccsFmt(r.css)}</td>
+          <td style="color:${CCS_COLORS.frente}">${ccsFmt(r.frente)}</td>
+          <td><span class="ccs-tag hi">${ccsFmt(r.balance, 2)}</span></td>
+          <td><span class="ccs-tag">${cond(r)}</span></td>
+        </tr>`).join('')
+      : `<tr><td colspan="6" class="ccs-empty">Sin eventos.</td></tr>`;
+  }
+
+  function ccsRenderGaps() {
+    const gaps = CCS_GAPS || [];
+    $("ccsGapCount").textContent = gaps.length;
+    const sd = (d) => d.toISOString().slice(0, 10);
+    $("ccsGapRows").innerHTML = gaps.length
+      ? gaps.map(g => `
+        <tr>
+          <td>${sd(g.from)}</td>
+          <td>${sd(g.to)}</td>
+          <td><span class="ccs-tag gap">${g.days} día${g.days > 1 ? 's' : ''}</span></td>
+        </tr>`).join('')
+      : `<tr><td colspan="3" class="ccs-empty">Sin huecos.</td></tr>`;
+  }
+
+  function drawCCS() {
+    if (!CCS_DATA) return;
+    ccsRenderKPIs();
+    ccsRenderMain();
+    ccsRenderRecent();
+    ccsRenderBox();
+    ccsRenderMonthly();
+    ccsRenderBalance();
+    ccsRenderHighTable();
+    ccsRenderGaps();
+  }
+
   function baseLayout(title, yTitle, isDateX) {
     return {
       title: {
@@ -415,9 +676,10 @@
       META.hidrologia.years.sort((a, b) => b - a).forEach(y => addOption(selHidroYears, y, y));
       if (selHidroYears.options.length >= 1) selHidroYears.options[0].selected = true;
 
-      const [pData, hData] = await Promise.all([
+      const [pData, hData, cData] = await Promise.all([
         loadCSV(FILES.prod),
-        loadCSV(FILES.hidro)
+        loadCSV(FILES.hidro),
+        loadCSV(FILES.ccs).catch(() => []),
       ]);
 
       PROD_DATA = pData.map(r => {
@@ -439,6 +701,32 @@
           value: val
         };
       }).filter(r => r.value > 0);
+
+      // CCS
+      if (cData && cData.length) {
+        const prep = ccsPrepare(cData);
+        CCS_DATA = prep.rows;
+        CCS_GAPS = prep.gaps;
+        CCS_MONTHLY = prep.monthlyRows;
+
+        const years = [...new Set(CCS_DATA.map(r => r.date.getFullYear()))].sort((a, b) => b - a);
+        const selCCSYear = $("ccsYear");
+        if (selCCSYear) {
+          years.forEach(y => addOption(selCCSYear, String(y), String(y)));
+          selCCSYear.addEventListener("change", () => {
+            CCS_YEAR_FILTER = selCCSYear.value ? Number(selCCSYear.value) : null;
+            ccsRenderMain();
+            ccsRenderBalance();
+          });
+        }
+        const selCCSScale = $("ccsScale");
+        if (selCCSScale) {
+          selCCSScale.addEventListener("change", () => {
+            CCS_Y_SCALE = selCCSScale.value;
+            ccsRenderMain();
+          });
+        }
+      }
 
       const allDates = [...PROD_DATA, ...HIDRO_DATA].map(r => r.date).filter(Boolean);
       if (allDates.length > 0) {

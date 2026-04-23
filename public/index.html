@@ -32,6 +32,13 @@
           </svg>
           Hidrología
         </button>
+        <button class="tab-btn" data-tab="ccs">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          Río Coca
+        </button>
       </nav>
     </header>
 
@@ -167,6 +174,90 @@
             </div>
           </div>
           <div class="plot-container" id="plotHidroMain"></div>
+        </div>
+      </section>
+
+      <!-- Módulo CCS · Río Coca -->
+      <section class="module-content" id="tab-ccs">
+        <div class="module-card">
+          <div class="module-header">
+            <div class="module-title">
+              <h2>Monitoreo Río Coca</h2>
+              <span>Caudales diarios · Coca / Derivado CCS / Frente de erosión (m³/s)</span>
+            </div>
+            <div class="controls-row">
+              <div class="control-group">
+                <label for="ccsYear">Año</label>
+                <select id="ccsYear">
+                  <option value="">Todos</option>
+                </select>
+              </div>
+              <div class="control-group">
+                <label for="ccsScale">Escala Y</label>
+                <select id="ccsScale">
+                  <option value="linear">Lineal</option>
+                  <option value="log">Logarítmica</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="ccs-info-strip">
+            <span>Sistema: <strong>Coca Codo Sinclair (1.500 MW)</strong></span>
+            <span>Frente de erosión: <strong>Km 3+600 (desde ago 2025)</strong></span>
+            <span>Último registro: <strong id="ccsInfoUltimo">—</strong></span>
+            <span>Días monitoreados: <strong id="ccsInfoDias">—</strong></span>
+          </div>
+
+          <div class="ccs-kpis" id="ccsKpis"></div>
+
+          <div class="plot-container" id="ccsPlotMain"></div>
+
+          <div class="charts-row">
+            <div class="plot-container plot-md" id="ccsPlotRecent"></div>
+            <div class="plot-container plot-md" id="ccsPlotBox"></div>
+          </div>
+
+          <div class="charts-row">
+            <div class="plot-container plot-md" id="ccsPlotMonthly"></div>
+            <div class="plot-container plot-md" id="ccsPlotBalance"></div>
+          </div>
+
+          <div class="ccs-tables">
+            <div class="ccs-table-card">
+              <div class="ccs-table-header">
+                <span>Eventos de alta variabilidad hidráulica</span>
+                <span class="ccs-chip warn" id="ccsHighCount">0</span>
+              </div>
+              <div class="ccs-tbl-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Coca</th>
+                      <th>CSS</th>
+                      <th>Frente</th>
+                      <th>Balance</th>
+                      <th>Condición</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ccsHighRows"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="ccs-table-card">
+              <div class="ccs-table-header">
+                <span>Huecos de fechas</span>
+                <span class="ccs-chip warn" id="ccsGapCount">0</span>
+              </div>
+              <div class="ccs-tbl-wrap">
+                <table>
+                  <thead><tr><th>Desde</th><th>Hasta</th><th>Días</th></tr></thead>
+                  <tbody id="ccsGapRows"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </main>

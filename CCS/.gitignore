@@ -1,0 +1,5 @@
+downloads/
+manifests/
+*.part
+__pycache__/
+tmp/

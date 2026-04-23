@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CELEC — Monitoreo Río Coca</title>
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <style>
+    :root {
+      --bg:      #0b0d14;
+      --panel:   #13161f;
+      --panel2:  #181b26;
+      --border:  #252836;
+      --text:    #dde3ef;
+      --muted:   #7a849a;
+      --coca:    #f87171;
+      --css:     #60a5fa;
+      --frente:  #34d399;
+      --balance: #fbbf24;
+      --accent:  #818cf8;
+      --danger:  #f87171;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .logo { display: flex; flex-direction: column; gap: 2px; }
+    .logo h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; }
+    .logo h1 em { color: var(--accent); font-style: normal; }
+    .logo p { font-size: 11px; color: var(--muted); }
+    .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .chip {
+      font-size: 11px; border-radius: 20px; padding: 3px 11px;
+      background: var(--border); color: var(--muted);
+    }
+    .chip.ok  { background: #0d2e1a; color: #6ee7b7; }
+    .chip.warn{ background: #2d1b00; color: #fcd34d; }
+    #fileInput {
+      font-size: 11px; color: var(--muted); background: var(--border);
+      border: 1px solid #2e3245; border-radius: 6px; padding: 5px 10px; cursor: pointer;
+    }
+
+    /* ── Layout ── */
+    main { padding: 20px 28px; display: flex; flex-direction: column; gap: 16px; }
+
+    /* ── KPIs ── */
+    .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 10px; }
+    .kpi {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--accent-color, var(--accent));
+      border-radius: 10px 10px 0 0;
+    }
+    .kpi .val  { font-size: 26px; font-weight: 700; line-height: 1; color: var(--accent-color, var(--text)); }
+    .kpi .lbl  { font-size: 10px; color: var(--muted); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.6px; }
+    .kpi .sub  { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 16px; border-bottom: 1px solid var(--border);
+      font-size: 12px; font-weight: 600; color: var(--text);
+      flex-wrap: wrap; gap: 8px;
+    }
+    .card-header .right { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+    /* ── Buttons ── */
+    .btn {
+      font-size: 11px; padding: 4px 10px; border-radius: 6px;
+      border: 1px solid var(--border); background: var(--bg); color: var(--muted);
+      cursor: pointer; transition: all 0.12s;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--text); }
+    .btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* ── Year pills ── */
+    .years { display: flex; gap: 5px; flex-wrap: wrap; }
+    .ypill {
+      font-size: 11px; padding: 3px 9px; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--bg); color: var(--muted); cursor: pointer;
+    }
+    .ypill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* ── Plot boxes ── */
+    .plot-lg { height: 420px; }
+    .plot-md { height: 280px; }
+    .plot-sm { height: 200px; }
+
+    /* ── Grids ── */
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    @media (max-width: 1000px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+    @media (max-width: 700px)  { .grid2 { grid-template-columns: 1fr; } }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
+      color: var(--muted); padding: 4px 0;
+    }
+
+    /* ── Tables ── */
+    .tbl-wrap { overflow: auto; max-height: 320px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { padding: 7px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--border); }
+    th:first-child, td:first-child { text-align: left; }
+    th { position: sticky; top: 0; background: #0e1118; color: var(--muted); font-weight: 600; z-index: 1; font-size: 11px; }
+    tr:hover td { background: rgba(129,140,248,0.05); }
+    .tag {
+      display: inline-block; font-size: 10px; border-radius: 4px;
+      padding: 1px 6px; background: var(--border); color: var(--muted);
+    }
+    .tag.hi  { background: #1e0a0a; color: #fca5a5; }
+    .tag.ok  { background: #0a1f0f; color: #6ee7b7; }
+    .tag.gap { background: #1c1500; color: #fcd34d; }
+
+    /* ── Info strip ── */
+    .info-strip {
+      background: var(--panel2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 18px;
+      display: flex; gap: 24px; flex-wrap: wrap;
+      font-size: 12px; color: var(--muted);
+    }
+    .info-strip strong { color: var(--text); }
+
+    .empty { color: var(--muted); font-size: 12px; padding: 18px 14px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <h1>Río Coca — <em>Monitoreo de Caudales</em></h1>
+    <p id="subtitle">Cargando datos...</p>
+  </div>
+  <div class="header-right">
+    <span class="chip" id="statusChip">⏳ Leyendo</span>
+    <input type="file" id="fileInput" accept=".csv" title="Cargar CSV manualmente">
+  </div>
+</header>
+
+<main>
+
+  <!-- KPIs -->
+  <div class="kpis" id="kpis"></div>
+
+  <!-- Info strip -->
+  <div class="info-strip" id="infoStrip" style="display:none">
+    <span>Sistema: <strong>Coca Codo Sinclair (1.500 MW)</strong></span>
+    <span>Frente de erosión actual: <strong id="infoFrente">—</strong></span>
+    <span>Último registro: <strong id="infoUltimo">—</strong></span>
+    <span>Días monitoreados: <strong id="infoDias">—</strong></span>
+  </div>
+
+  <!-- Hidrograma principal -->
+  <div class="card">
+    <div class="card-header">
+      <span>Hidrograma diario · m³/s</span>
+      <div class="right">
+        <div class="years" id="yearPills"></div>
+        <button class="btn active" id="btnAll">Todo</button>
+        <button class="btn active" id="btnLinear">Lineal</button>
+        <button class="btn" id="btnLog">Log</button>
+      </div>
+    </div>
+    <div class="plot-lg" id="mainChart"></div>
+  </div>
+
+  <!-- Tendencia reciente + boxplot distribución -->
+  <div class="grid2">
+    <div class="card">
+      <div class="card-header">Últimos 90 días</div>
+      <div class="plot-md" id="recentChart"></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Distribución histórica por serie</div>
+      <div class="plot-md" id="boxChart"></div>
+    </div>
+  </div>
+
+  <!-- Promedios mensuales + balance -->
+  <div class="grid2">
+    <div class="card">
+      <div class="card-header">Promedio mensual</div>
+      <div class="plot-md" id="monthlyChart"></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span>Balance diario · |Coca − CSS − Frente| m³/s</span>
+        <span class="tag" id="balTag"></span>
+      </div>
+      <div class="plot-md" id="balanceChart"></div>
+    </div>
+  </div>
+
+  <!-- Tabla alta variabilidad + huecos -->
+  <div class="grid2">
+    <div class="card">
+      <div class="card-header">
+        <span>Eventos de alta variabilidad hidráulica</span>
+        <span class="chip warn" id="highCount">0</span>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Coca</th>
+              <th>CSS</th>
+              <th>Frente</th>
+              <th>Balance</th>
+              <th>Condición</th>
+            </tr>
+          </thead>
+          <tbody id="highRows"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span>Huecos de fechas</span>
+        <span class="chip warn" id="gapCount">0</span>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Desde</th><th>Hasta</th><th>Días</th></tr></thead>
+          <tbody id="gapRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── Constants ──────────────────────────────────────────────────────────────────
+const CSV_PATH = './celec_daily_flows.csv';
+
+const C = { coca: '#f87171', css: '#60a5fa', frente: '#34d399', balance: '#fbbf24', accent: '#818cf8' };
+
+const BASE = {
+  paper_bgcolor: 'transparent',
+  plot_bgcolor:  'transparent',
+  font: { family: "'Segoe UI', system-ui, sans-serif", color: '#dde3ef', size: 11 },
+  margin: { l: 55, r: 16, t: 12, b: 44 },
+  xaxis: { gridcolor: '#1e2130', linecolor: '#252836', zerolinecolor: '#252836' },
+  yaxis: { gridcolor: '#1e2130', linecolor: '#252836', zerolinecolor: '#252836' },
+  legend: { bgcolor: 'transparent', orientation: 'h', y: -0.18 },
+  hovermode: 'x unified',
+  hoverlabel: { bgcolor: '#1a1d2e', bordercolor: '#3b3f58', font: { color: '#dde3ef', size: 11 } },
+};
+
+const CFG = { responsive: true, displayModeBar: false };
+
+// ── CSV parser ─────────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const rows = [];
+  let row = [], val = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i], nx = text[i+1];
+    if (q) {
+      if (ch === '"' && nx === '"') { val += '"'; i++; }
+      else if (ch === '"') q = false;
+      else val += ch;
+    } else if (ch === '"') { q = true; }
+    else if (ch === ',')  { row.push(val); val = ''; }
+    else if (ch === '\n') { row.push(val); rows.push(row); row = []; val = ''; }
+    else if (ch !== '\r') { val += ch; }
+  }
+  if (val || row.length) { row.push(val); rows.push(row); }
+  const headers = rows.shift().map(h => h.replace(/^﻿/, '').trim());
+  return rows.filter(r => r.length > 1).map(r => {
+    const o = {};
+    headers.forEach((h, i) => o[h] = (r[i] || '').trim());
+    return o;
+  });
+}
+
+function toNum(v) {
+  if (!v) return null;
+  const n = Number(v.replace(/\./g, '').replace(',', '.'));
+  return Number.isFinite(n) ? n : null;
+}
+
+function fmt(n, d = 1) {
+  if (n == null || isNaN(n)) return '—';
+  return n.toLocaleString('es-EC', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+
+function sd(d) { return d instanceof Date ? d.toISOString().slice(0,10) : d; }
+
+function avg(arr) {
+  const v = arr.filter(x => x != null);
+  return v.length ? v.reduce((a,b)=>a+b,0)/v.length : null;
+}
+
+function median(arr) {
+  const s = [...arr].filter(x=>x!=null).sort((a,b)=>a-b);
+  if (!s.length) return null;
+  const m = Math.floor(s.length/2);
+  return s.length%2 ? s[m] : (s[m-1]+s[m])/2;
+}
+
+// ── Prepare ────────────────────────────────────────────────────────────────────
+function prepare(raw) {
+  const rows = raw.map(r => {
+    const date   = new Date(r.fecha + 'T00:00:00');
+    const coca   = toNum(r.caudal_rio_coca_m3s);
+    const css    = toNum(r.caudal_derivado_css_m3s);
+    const frente = toNum(r.caudal_frente_erosion_m3s);
+    const balance = (coca!=null&&css!=null&&frente!=null) ? Math.abs(coca-css-frente) : null;
+    return { ...r, date, coca, css, frente, balance };
+  }).filter(r => !isNaN(r.date) && r.date).sort((a,b)=>a.date-b.date);
+
+  const gaps = [];
+  for (let i = 1; i < rows.length; i++) {
+    const diff = Math.round((rows[i].date - rows[i-1].date)/86400000);
+    if (diff > 1) gaps.push({
+      from: new Date(rows[i-1].date.getTime()+86400000),
+      to:   new Date(rows[i].date.getTime()-86400000),
+      days: diff-1
+    });
+  }
+
+  const monthly = {};
+  rows.forEach(r => {
+    const key = `${r.date.getFullYear()}-${String(r.date.getMonth()+1).padStart(2,'0')}`;
+    if (!monthly[key]) monthly[key] = { coca:[], css:[], frente:[], balance:[] };
+    if (r.coca   !=null) monthly[key].coca.push(r.coca);
+    if (r.css    !=null) monthly[key].css.push(r.css);
+    if (r.frente !=null) monthly[key].frente.push(r.frente);
+    if (r.balance!=null) monthly[key].balance.push(r.balance);
+  });
+  const monthlyRows = Object.entries(monthly).sort().map(([k,v])=>({
+    key: k,
+    coca:    avg(v.coca),
+    css:     avg(v.css),
+    frente:  avg(v.frente),
+    balance: avg(v.balance),
+  }));
+
+  return { rows, gaps, monthlyRows };
+}
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let ST = { rows:[], gaps:[], monthlyRows:[], yScale:'linear', yearFilter:null };
+
+function filtered() {
+  if (!ST.yearFilter) return ST.rows;
+  return ST.rows.filter(r => r.date.getFullYear()===ST.yearFilter);
+}
+
+// ── KPIs ───────────────────────────────────────────────────────────────────────
+function renderKPIs() {
+  const { rows, gaps } = ST;
+  if (!rows.length) return;
+  const last = rows[rows.length-1];
+  const first = rows[0];
+  const totalDays = Math.round((last.date - first.date)/86400000)+1;
+  const avgCoca   = avg(rows.map(r=>r.coca));
+  const avgCSS    = avg(rows.map(r=>r.css));
+  const avgFrente = avg(rows.map(r=>r.frente));
+  const highBal   = rows.filter(r=>r.balance!=null&&r.balance>5).length;
+
+  const kpis = [
+    { color:'#818cf8', val: rows.length,       lbl: 'Días registrados',    sub: `de ${totalDays} posibles` },
+    { color:'#f87171', val: fmt(avgCoca),       lbl: 'Prom. Río Coca',      sub: 'm³/s histórico' },
+    { color:'#60a5fa', val: fmt(avgCSS),        lbl: 'Prom. Derivado CCS',  sub: 'm³/s histórico' },
+    { color:'#34d399', val: fmt(avgFrente),     lbl: 'Prom. Frente',        sub: 'm³/s histórico' },
+    { color:'#fbbf24', val: highBal,            lbl: 'Eventos avenida',     sub: 'balance > 5 m³/s' },
+    { color:'#a78bfa', val: gaps.reduce((s,g)=>s+g.days,0), lbl:'Días sin datos', sub:`${gaps.length} hueco(s)` },
+  ];
+
+  document.getElementById('kpis').innerHTML = kpis.map(k=>`
+    <div class="kpi" style="--accent-color:${k.color}">
+      <div class="val">${k.val}</div>
+      <div class="lbl">${k.lbl}</div>
+      <div class="sub">${k.sub}</div>
+    </div>`).join('');
+
+  // Info strip
+  const strip = document.getElementById('infoStrip');
+  strip.style.display = 'flex';
+  document.getElementById('infoFrente').textContent = 'Km 3+600 (desde ago 2025)';
+  document.getElementById('infoUltimo').textContent = sd(last.date) + ` · Coca ${fmt(last.coca)} m³/s`;
+  document.getElementById('infoDias').textContent = rows.length;
+}
+
+// ── Main chart ─────────────────────────────────────────────────────────────────
+function renderMain() {
+  const rows = filtered();
+  const dates = rows.map(r=>sd(r.date));
+  const traces = [
+    { name:'Río Coca',       y: rows.map(r=>r.coca),   line:{ color:C.coca,   width:2 } },
+    { name:'Derivado CSS',   y: rows.map(r=>r.css),    line:{ color:C.css,    width:2 } },
+    { name:'Frente erosión', y: rows.map(r=>r.frente), line:{ color:C.frente, width:2 } },
+  ].map(t=>({ ...t, x:dates, type:'scatter', mode:'lines',
+    hovertemplate:`%{y:.1f} m³/s<extra>${t.name}</extra>`, connectgaps:false }));
+
+  const layout = { ...BASE,
+    yaxis: { ...BASE.yaxis, title:{ text:'m³/s', standoff:6 }, type:ST.yScale },
+    xaxis: { ...BASE.xaxis, type:'date' },
+  };
+  Plotly.react('mainChart', traces, layout, CFG);
+}
+
+// ── Recent 90 days ─────────────────────────────────────────────────────────────
+function renderRecent() {
+  const cutoff = new Date(ST.rows[ST.rows.length-1].date);
+  cutoff.setDate(cutoff.getDate()-90);
+  const rows = ST.rows.filter(r=>r.date>=cutoff);
+  const dates = rows.map(r=>sd(r.date));
+  const traces = [
+    { name:'Río Coca',       y:rows.map(r=>r.coca),   line:{ color:C.coca,   width:2 } },
+    { name:'Derivado CSS',   y:rows.map(r=>r.css),    line:{ color:C.css,    width:2 } },
+    { name:'Frente erosión', y:rows.map(r=>r.frente), line:{ color:C.frente, width:2 } },
+  ].map(t=>({ ...t, x:dates, type:'scatter', mode:'lines',
+    hovertemplate:`%{y:.1f} m³/s<extra>${t.name}</extra>`, connectgaps:false }));
+
+  const layout = { ...BASE,
+    margin:{ l:55, r:16, t:8, b:44 },
+    yaxis:{ ...BASE.yaxis, title:{ text:'m³/s', standoff:6 } },
+    xaxis:{ ...BASE.xaxis, type:'date' },
+  };
+  Plotly.react('recentChart', traces, layout, CFG);
+}
+
+// ── Box plot ───────────────────────────────────────────────────────────────────
+function renderBox() {
+  const rows = ST.rows;
+  const traces = [
+    { name:'Río Coca',       y:rows.map(r=>r.coca).filter(v=>v!=null),   marker:{color:C.coca}   },
+    { name:'Derivado CSS',   y:rows.map(r=>r.css).filter(v=>v!=null),    marker:{color:C.css}    },
+    { name:'Frente erosión', y:rows.map(r=>r.frente).filter(v=>v!=null), marker:{color:C.frente} },
+  ].map(t=>({ ...t, type:'box', boxmean:'sd', hovertemplate:`%{y:.1f} m³/s<extra>${t.name}</extra>` }));
+
+  const layout = { ...BASE,
+    margin:{ l:55, r:16, t:8, b:44 },
+    yaxis:{ ...BASE.yaxis, title:{ text:'m³/s', standoff:6 } },
+    xaxis:{ ...BASE.xaxis },
+    showlegend: false,
+  };
+  Plotly.react('boxChart', traces, layout, CFG);
+}
+
+// ── Monthly chart ──────────────────────────────────────────────────────────────
+function renderMonthly() {
+  const { monthlyRows } = ST;
+  const keys = monthlyRows.map(r=>r.key);
+  const traces = [
+    { name:'Río Coca',       y:monthlyRows.map(r=>r.coca),   marker:{color:C.coca}   },
+    { name:'Derivado CSS',   y:monthlyRows.map(r=>r.css),    marker:{color:C.css}    },
+    { name:'Frente erosión', y:monthlyRows.map(r=>r.frente), marker:{color:C.frente} },
+  ].map(t=>({ ...t, x:keys, type:'bar',
+    hovertemplate:`%{y:.1f} m³/s<extra>${t.name}</extra>` }));
+
+  const layout = { ...BASE,
+    barmode:'group',
+    margin:{ l:55, r:16, t:8, b:60 },
+    yaxis:{ ...BASE.yaxis, title:{ text:'m³/s', standoff:6 } },
+    xaxis:{ ...BASE.xaxis, tickangle:-40 },
+    legend:{ bgcolor:'transparent', orientation:'h', y:-0.35 },
+  };
+  Plotly.react('monthlyChart', traces, layout, CFG);
+}
+
+// ── Balance chart ──────────────────────────────────────────────────────────────
+function renderBalance() {
+  const rows = filtered();
+  const dates = rows.map(r=>sd(r.date));
+  const vals  = rows.map(r=>r.balance);
+  const colors = vals.map(v=> v==null?'transparent': v>5?'#ef4444': v>1?'#f59e0b':'#34d399');
+
+  const highCount = vals.filter(v=>v!=null&&v>5).length;
+  document.getElementById('balTag').textContent = `${highCount} eventos >5 m³/s`;
+
+  Plotly.react('balanceChart', [{
+    x:dates, y:vals, type:'bar',
+    marker:{ color:colors },
+    hovertemplate:'%{y:.2f} m³/s<extra>Balance</extra>',
+    name:'Balance',
+  }], {
+    ...BASE,
+    margin:{ l:55, r:16, t:8, b:44 },
+    yaxis:{ ...BASE.yaxis, title:{ text:'m³/s', standoff:6 }, zeroline:true, zerolinecolor:'#353849', zerolinewidth:1 },
+    xaxis:{ ...BASE.xaxis, type:'date' },
+    showlegend:false,
+  }, CFG);
+}
+
+// ── High variability table ─────────────────────────────────────────────────────
+function renderHighTable() {
+  const rows = ST.rows
+    .filter(r => r.balance!=null && r.balance>5)
+    .sort((a,b)=>b.balance-a.balance);
+
+  document.getElementById('highCount').textContent = rows.length;
+
+  function condition(r) {
+    if (r.css!=null && r.css < 30) return 'CSS cerrada (sedimentos)';
+    if (r.coca!=null && r.coca > 600) return 'Avenida extrema';
+    if (r.coca!=null && r.coca > 300) return 'Avenida alta';
+    return 'Alta variabilidad';
+  }
+
+  document.getElementById('highRows').innerHTML = rows.length
+    ? rows.map(r=>`
+      <tr>
+        <td>${sd(r.date)}</td>
+        <td style="color:${C.coca}">${fmt(r.coca)}</td>
+        <td style="color:${C.css}">${fmt(r.css)}</td>
+        <td style="color:${C.frente}">${fmt(r.frente)}</td>
+        <td><span class="tag hi">${fmt(r.balance,2)}</span></td>
+        <td><span class="tag">${condition(r)}</span></td>
+      </tr>`).join('')
+    : `<tr><td colspan="6" class="empty">Sin eventos de alta variabilidad.</td></tr>`;
+}
+
+// ── Gaps table ─────────────────────────────────────────────────────────────────
+function renderGaps() {
+  const { gaps } = ST;
+  document.getElementById('gapCount').textContent = gaps.length;
+  document.getElementById('gapRows').innerHTML = gaps.length
+    ? gaps.map(g=>`
+      <tr>
+        <td>${sd(g.from)}</td>
+        <td>${sd(g.to)}</td>
+        <td><span class="tag gap">${g.days} día${g.days>1?'s':''}</span></td>
+      </tr>`).join('')
+    : `<tr><td colspan="3" class="empty">Sin huecos.</td></tr>`;
+}
+
+// ── Year pills ─────────────────────────────────────────────────────────────────
+function buildYearPills() {
+  const years = [...new Set(ST.rows.map(r=>r.date.getFullYear()))].sort();
+  const el = document.getElementById('yearPills');
+  el.innerHTML = years.map(y=>`<button class="ypill" data-y="${y}">${y}</button>`).join('');
+  el.querySelectorAll('.ypill').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const y = Number(btn.dataset.y);
+      if (ST.yearFilter===y) {
+        ST.yearFilter=null;
+        el.querySelectorAll('.ypill').forEach(b=>b.classList.remove('active'));
+        document.getElementById('btnAll').classList.add('active');
+      } else {
+        ST.yearFilter=y;
+        el.querySelectorAll('.ypill').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('btnAll').classList.remove('active');
+      }
+      renderMain(); renderBalance();
+    });
+  });
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+function init(raw) {
+  const data = prepare(raw);
+  ST.rows = data.rows; ST.gaps = data.gaps; ST.monthlyRows = data.monthlyRows;
+  const first = data.rows[0], last = data.rows[data.rows.length-1];
+
+  document.getElementById('subtitle').textContent =
+    `${data.rows.length} registros · ${sd(first.date)} → ${sd(last.date)} · Río Coca / CCS / Frente erosión`;
+  document.getElementById('statusChip').className = 'chip ok';
+  document.getElementById('statusChip').textContent = '✓ Datos cargados';
+
+  buildYearPills();
+  renderKPIs();
+  renderMain();
+  renderRecent();
+  renderBox();
+  renderMonthly();
+  renderBalance();
+  renderHighTable();
+  renderGaps();
+}
+
+// ── Load ───────────────────────────────────────────────────────────────────────
+async function loadDefault() {
+  try {
+    const res = await fetch(CSV_PATH, { cache:'no-store' });
+    if (!res.ok) throw new Error();
+    init(parseCSV(await res.text()));
+  } catch {
+    document.getElementById('statusChip').className = 'chip warn';
+    document.getElementById('statusChip').textContent = '⚠ Carga el CSV manualmente';
+    document.getElementById('subtitle').textContent = 'Usa el selector de archivo arriba.';
+  }
+}
+
+document.getElementById('fileInput').addEventListener('change', async e=>{
+  const file = e.target.files[0]; if (!file) return;
+  init(parseCSV(await file.text()));
+});
+
+document.getElementById('btnAll').addEventListener('click', ()=>{
+  ST.yearFilter=null;
+  document.querySelectorAll('.ypill').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btnAll').classList.add('active');
+  renderMain(); renderBalance();
+});
+
+document.getElementById('btnLinear').addEventListener('click', ()=>{
+  ST.yScale='linear';
+  document.getElementById('btnLinear').classList.add('active');
+  document.getElementById('btnLog').classList.remove('active');
+  renderMain();
+});
+
+document.getElementById('btnLog').addEventListener('click', ()=>{
+  ST.yScale='log';
+  document.getElementById('btnLog').classList.add('active');
+  document.getElementById('btnLinear').classList.remove('active');
+  renderMain();
+});
+
+loadDefault();
+</script>
+</body>
+</html>

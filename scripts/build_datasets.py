@@ -22,6 +22,7 @@ import pandas as pd
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PROD_DIR = REPO_ROOT / "Produ_mensual"
 HIDRO_DIR = REPO_ROOT / "Hidro_mensual"
+CCS_FLOWS_CSV = REPO_ROOT / "CCS" / "outputs" / "celec_daily_flows.csv"
 
 OUT_DIR1 = REPO_ROOT / "data"
 OUT_DIR2 = REPO_ROOT / "public" / "data"
@@ -250,6 +251,55 @@ def build_hidrologia_diaria_larga() -> pd.DataFrame:
     return out
 
 
+def _coma_to_float(v) -> float | None:
+    if v is None or (isinstance(v, float) and pd.isna(v)):
+        return None
+    s = str(v).strip()
+    if not s:
+        return None
+    s = s.replace(".", "").replace(",", ".") if s.count(",") == 1 and s.count(".") <= 1 else s.replace(",", ".")
+    try:
+        x = float(s)
+        return x if pd.notna(x) else None
+    except ValueError:
+        return None
+
+
+def build_ccs_caudales() -> pd.DataFrame:
+    if not CCS_FLOWS_CSV.exists():
+        return pd.DataFrame(columns=["date", "coca", "css", "frente", "balance", "status"])
+
+    df = _read_csv_any_encoding(CCS_FLOWS_CSV)
+    df = _normalize_cols(df)
+
+    out_rows = []
+    for _, r in df.iterrows():
+        date = str(r.get("fecha", "")).strip()
+        if not date:
+            continue
+        coca = _coma_to_float(r.get("caudal_rio_coca_m3s"))
+        css = _coma_to_float(r.get("caudal_derivado_css_m3s"))
+        frente = _coma_to_float(r.get("caudal_frente_erosion_m3s"))
+        balance = _coma_to_float(r.get("balance_error_m3s"))
+        status = str(r.get("status", "")).strip()
+        if coca is None and css is None and frente is None:
+            continue
+        out_rows.append({
+            "date": date,
+            "coca": coca,
+            "css": css,
+            "frente": frente,
+            "balance": balance,
+            "status": status,
+        })
+
+    out = pd.DataFrame(out_rows)
+    if out.empty:
+        return out
+    out = out.drop_duplicates(subset=["date"], keep="last").sort_values("date")
+    return out
+
+
 def _write_csv_both(name: str, df: pd.DataFrame) -> None:
     csv_text = df.to_csv(index=False)
     (OUT_DIR1 / name).write_text(csv_text, encoding="utf-8")
@@ -273,6 +323,9 @@ def main() -> int:
     _write_csv_both("produccion_diaria_larga.csv", prod_pub)
     _write_csv_both("hidrologia_diaria_larga.csv", hidro_pub)
 
+    ccs = build_ccs_caudales()
+    _write_csv_both("ccs_caudales_diarios.csv", ccs)
+
     meta = {
         "generated_at_utc": pd.Timestamp.utcnow().isoformat(),
         "produccion": {
@@ -287,11 +340,28 @@ def main() -> int:
             "series": sorted(hidro_pub["series"].unique().tolist()),
             "metrics": sorted(hidro_pub["metric"].unique().tolist()),
         },
+        "ccs": _ccs_meta(ccs),
     }
     _write_json_both("meta.json", meta)
 
     print("OK. Wrote datasets to ./data and ./public/data")
     return 0
+
+
+def _ccs_meta(ccs: pd.DataFrame) -> dict:
+    if ccs.empty:
+        return {"rows": 0, "fecha_min": None, "fecha_max": None,
+                "ultimo_coca": None, "ultimo_css": None, "ultimo_frente": None}
+    last = ccs.iloc[-1]
+    return {
+        "rows": int(len(ccs)),
+        "fecha_min": str(ccs["date"].min()),
+        "fecha_max": str(ccs["date"].max()),
+        "ultimo_coca": None if pd.isna(last["coca"]) else float(last["coca"]),
+        "ultimo_css": None if pd.isna(last["css"]) else float(last["css"]),
+        "ultimo_frente": None if pd.isna(last["frente"]) else float(last["frente"]),
+        "years": sorted({int(d[:4]) for d in ccs["date"] if isinstance(d, str) and len(d) >= 4}),
+    }
 
 
 if __name__ == "__main__":

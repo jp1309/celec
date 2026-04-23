@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+.claude/
+*.swp
+.DS_Store
+
+# CCS — datos pesados que se regeneran automáticamente
+CCS/downloads/
+CCS/tmp/
+CCS/__pycache__/
+CCS/outputs/celec_daily_flows_test.csv
+CCS/outputs/rerun_*.csv

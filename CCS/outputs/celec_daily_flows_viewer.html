@@ -1,0 +1,991 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Caudales CELEC</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #17212b;
+      --muted: #66717d;
+      --line: #d8dde3;
+      --red: #d43d2f;
+      --blue: #2569b3;
+      --green: #26845f;
+      --amber: #b66a00;
+      --violet: #6752a8;
+      --shadow: 0 10px 26px rgba(24, 33, 43, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .wrap {
+      width: min(1440px, calc(100vw - 32px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 22px 0 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .filebar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input[type="file"] {
+      max-width: 260px;
+    }
+
+    main {
+      padding: 18px 0 32px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 76px;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 21px;
+      line-height: 1.2;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .chartShell {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .toggles {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    label.check {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .swatch {
+      width: 22px;
+      height: 4px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .swatch.red { background: var(--red); }
+    .swatch.blue { background: var(--blue); }
+    .swatch.green { background: var(--green); }
+    .swatch.amber { background: var(--amber); }
+    .swatch.violet { background: var(--violet); }
+
+    .buttons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    button.active {
+      background: #17212b;
+      color: #fff;
+      border-color: #17212b;
+    }
+
+    .rangebar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      align-items: center;
+    }
+
+    .rangebar label {
+      display: grid;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #17212b;
+    }
+
+    .canvasBox {
+      position: relative;
+      height: min(58vh, 620px);
+      min-height: 420px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+    }
+
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      min-width: 210px;
+      padding: 9px 10px;
+      background: rgba(23, 33, 43, 0.94);
+      color: #fff;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.45;
+      transform: translate(-50%, calc(-100% - 14px));
+      display: none;
+      z-index: 3;
+    }
+
+    .tooltip b {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+
+    .notes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    section.panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .panel h2 {
+      margin: 0;
+      padding: 12px;
+      font-size: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panelBody {
+      padding: 12px;
+    }
+
+    .summaryList {
+      display: grid;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--ink);
+    }
+
+    .summaryList div {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #edf0f3;
+    }
+
+    .summaryList div:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .tableWrap {
+      overflow: auto;
+      max-height: 360px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      text-align: right;
+      padding: 7px 8px;
+      border-bottom: 1px solid #edf0f3;
+      white-space: nowrap;
+    }
+
+    th:first-child, td:first-child,
+    th:last-child, td:last-child {
+      text-align: left;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #f9fafb;
+      color: #4c5661;
+      font-weight: 700;
+      z-index: 1;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 8px 0;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      display: inline-block;
+    }
+
+    .dot.good { background: var(--green); }
+    .dot.warn { background: var(--amber); }
+
+    @media (max-width: 980px) {
+      .topbar,
+      .toolbar,
+      .rangebar,
+      .notes {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        display: grid;
+        align-items: start;
+      }
+
+      .filebar,
+      .buttons {
+        justify-content: flex-start;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .canvasBox {
+        min-height: 360px;
+        height: 56vh;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .wrap {
+        width: min(100vw - 18px, 1440px);
+      }
+
+      h1 {
+        font-size: 23px;
+      }
+
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .toggles {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 9px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap topbar">
+      <div>
+        <h1>Caudales CELEC</h1>
+        <p class="subtitle" id="subtitle">Cargando datos...</p>
+      </div>
+      <div class="filebar">
+        <span class="status"><span class="dot" id="loadDot"></span><span id="loadStatus">Leyendo CSV</span></span>
+        <input type="file" id="fileInput" accept=".csv,text/csv">
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="metrics" id="metrics"></div>
+
+    <div class="chartShell">
+      <div class="toolbar">
+        <div class="toggles">
+          <label class="check"><input type="checkbox" data-series="coca" checked><span class="swatch red"></span>Rio Coca</label>
+          <label class="check"><input type="checkbox" data-series="css" checked><span class="swatch blue"></span>Derivado CSS</label>
+          <label class="check"><input type="checkbox" data-series="frente" checked><span class="swatch green"></span>Frente erosion</label>
+          <label class="check"><input type="checkbox" id="showIssues" checked><span class="swatch amber"></span>Revisar</label>
+          <label class="check"><input type="checkbox" id="showExtremes" checked><span class="swatch violet"></span>Extremos</label>
+        </div>
+        <div class="buttons">
+          <button id="linearBtn" class="active" title="Escala lineal">Lineal</button>
+          <button id="logBtn" title="Escala logaritmica">Log</button>
+          <button id="resetBtn" title="Ver todo el rango">Todo</button>
+        </div>
+      </div>
+
+      <div class="rangebar">
+        <label>Inicio <input id="startRange" type="range" min="0" max="100" value="0"></label>
+        <label>Fin <input id="endRange" type="range" min="0" max="100" value="100"></label>
+      </div>
+
+      <div class="canvasBox">
+        <canvas id="chart"></canvas>
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <section class="panel">
+        <h2>Revision</h2>
+        <div class="panelBody">
+          <div class="summaryList" id="reviewSummary"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Fechas Para Revisar</h2>
+        <div class="panelBody tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Rio Coca</th>
+                <th>CSS</th>
+                <th>Frente</th>
+                <th>Balance</th>
+                <th>Motivo</th>
+              </tr>
+            </thead>
+            <tbody id="issueRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Extremos Altos</h2>
+        <div class="panelBody tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Serie</th>
+                <th>Valor</th>
+                <th>Balance</th>
+                <th>Fuente</th>
+              </tr>
+            </thead>
+            <tbody id="extremeRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Huecos De Fechas</h2>
+        <div class="panelBody" id="gapRows"></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const csvPath = './celec_daily_flows.csv';
+    const series = {
+      coca: { label: 'Rio Coca', key: 'caudal_rio_coca_m3s', color: '#d43d2f' },
+      css: { label: 'Derivado CSS', key: 'caudal_derivado_css_m3s', color: '#2569b3' },
+      frente: { label: 'Frente erosion', key: 'caudal_frente_erosion_m3s', color: '#26845f' }
+    };
+
+    const state = {
+      rows: [],
+      start: 0,
+      end: 0,
+      scale: 'linear',
+      visible: { coca: true, css: true, frente: true },
+      showIssues: true,
+      showExtremes: true,
+      hover: null,
+      stats: null
+    };
+
+    const canvas = document.getElementById('chart');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let value = '';
+      let quoted = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        const next = text[i + 1];
+
+        if (quoted) {
+          if (ch === '"' && next === '"') {
+            value += '"';
+            i++;
+          } else if (ch === '"') {
+            quoted = false;
+          } else {
+            value += ch;
+          }
+        } else if (ch === '"') {
+          quoted = true;
+        } else if (ch === ',') {
+          row.push(value);
+          value = '';
+        } else if (ch === '\n') {
+          row.push(value);
+          rows.push(row);
+          row = [];
+          value = '';
+        } else if (ch !== '\r') {
+          value += ch;
+        }
+      }
+
+      if (value.length || row.length) {
+        row.push(value);
+        rows.push(row);
+      }
+
+      const headers = rows.shift().map(h => h.replace(/^\uFEFF/, ''));
+      return rows.filter(r => r.length > 1).map(r => {
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = r[i] || '');
+        return obj;
+      });
+    }
+
+    function toNumber(value) {
+      if (!value) return null;
+      const normalized = value.replace(/\./g, '').replace(',', '.');
+      const n = Number(normalized);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function fmt(n, digits = 2) {
+      if (n === null || n === undefined || Number.isNaN(n)) return '';
+      return n.toLocaleString('es-EC', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    }
+
+    function shortDate(date) {
+      return date.toISOString().slice(0, 10);
+    }
+
+    function quantile(sorted, q) {
+      if (!sorted.length) return 0;
+      const pos = (sorted.length - 1) * q;
+      const base = Math.floor(pos);
+      const rest = pos - base;
+      if (sorted[base + 1] !== undefined) {
+        return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+      }
+      return sorted[base];
+    }
+
+    function median(values) {
+      return quantile([...values].sort((a, b) => a - b), 0.5);
+    }
+
+    function prepare(rawRows) {
+      const rows = rawRows.map((r, index) => {
+        const date = new Date(`${r.fecha}T00:00:00`);
+        const coca = toNumber(r.caudal_rio_coca_m3s);
+        const css = toNumber(r.caudal_derivado_css_m3s);
+        const frente = toNumber(r.caudal_frente_erosion_m3s);
+        const textFront = toNumber(r.frente_erosion_texto_m3s);
+        const balance = coca === null || css === null || frente === null ? null : coca - css - frente;
+        return { ...r, index, date, coca, css, frente, textFront, balance, issues: [], extremes: [] };
+      }).sort((a, b) => a.date - b.date);
+
+      const thresholds = {};
+      Object.keys(series).forEach(id => {
+        const values = rows.map(r => r[id]).filter(v => v !== null).sort((a, b) => a - b);
+        const q1 = quantile(values, 0.25);
+        const q3 = quantile(values, 0.75);
+        const med = quantile(values, 0.5);
+        const mad = median(values.map(v => Math.abs(v - med))) || 1;
+        thresholds[id] = Math.max(q3 + 3 * (q3 - q1), med + 6 * 1.4826 * mad);
+      });
+
+      rows.forEach(r => {
+        if (r.balance !== null && Math.abs(r.balance) > 1) r.issues.push(`balance ${fmt(r.balance)}`);
+        if (r.textFront !== null && r.frente !== null && Math.abs(r.frente - r.textFront) > 1) {
+          r.issues.push(`texto frente ${fmt(r.textFront)}`);
+        }
+        if ((r.source || '').includes('manual_visual_review')) r.issues.push('revision manual');
+        Object.keys(series).forEach(id => {
+          if (r[id] !== null && r[id] > thresholds[id]) r.extremes.push(id);
+        });
+      });
+
+      const gaps = [];
+      for (let i = 1; i < rows.length; i++) {
+        const prev = rows[i - 1].date;
+        const cur = rows[i].date;
+        const diff = Math.round((cur - prev) / 86400000);
+        if (diff > 1) {
+          gaps.push({ from: new Date(prev.getTime() + 86400000), to: new Date(cur.getTime() - 86400000), days: diff - 1 });
+        }
+      }
+
+      return { rows, thresholds, gaps };
+    }
+
+    function init(data) {
+      state.rows = data.rows;
+      state.stats = data;
+      state.start = 0;
+      state.end = Math.max(0, data.rows.length - 1);
+      document.getElementById('startRange').max = state.end;
+      document.getElementById('endRange').max = state.end;
+      document.getElementById('startRange').value = state.start;
+      document.getElementById('endRange').value = state.end;
+      document.getElementById('loadDot').className = 'dot good';
+      document.getElementById('loadStatus').textContent = 'CSV cargado';
+      renderAll();
+    }
+
+    function renderAll() {
+      renderMetrics();
+      renderSummary();
+      renderTables();
+      draw();
+    }
+
+    function visibleRows() {
+      return state.rows.slice(state.start, state.end + 1);
+    }
+
+    function renderMetrics() {
+      const rows = state.rows;
+      const first = rows[0];
+      const last = rows[rows.length - 1];
+      const issueCount = rows.filter(r => r.issues.some(x => !x.includes('revision manual'))).length;
+      const manualCount = rows.filter(r => (r.source || '').includes('manual_visual_review')).length;
+      const extremeCount = rows.filter(r => r.extremes.length).length;
+      const maxFront = rows.reduce((a, r) => r.frente > a.frente ? r : a, rows[0]);
+      const items = [
+        [rows.length, 'registros'],
+        [`${shortDate(first.date)} / ${shortDate(last.date)}`, 'rango'],
+        [state.stats.gaps.length, 'huecos de fecha'],
+        [issueCount, 'filas para revisar'],
+        [fmt(maxFront.frente), `max frente ${shortDate(maxFront.date)}`]
+      ];
+      document.getElementById('subtitle').textContent = `${rows.length} registros, ${manualCount} filas corregidas por revision visual, ${extremeCount} fechas extremas marcadas.`;
+      document.getElementById('metrics').innerHTML = items.map(([value, label]) => `<div class="metric"><b>${value}</b><span>${label}</span></div>`).join('');
+    }
+
+    function renderSummary() {
+      const rows = state.rows;
+      const badBalance = rows.filter(r => r.balance !== null && Math.abs(r.balance) > 1);
+      const textMismatch = rows.filter(r => r.textFront !== null && r.frente !== null && Math.abs(r.frente - r.textFront) > 1);
+      const manual = rows.filter(r => (r.source || '').includes('manual_visual_review'));
+      const highCss = rows.filter(r => r.css !== null && r.css > state.stats.thresholds.css);
+      const summary = [
+        ['Balance mayor a 1 m3/s', badBalance.length],
+        ['Frente grafico vs texto', textMismatch.length],
+        ['Correcciones visuales', manual.length],
+        ['CSS extremo alto', highCss.length],
+        ['Fechas ausentes', state.stats.gaps.reduce((sum, g) => sum + g.days, 0)]
+      ];
+      document.getElementById('reviewSummary').innerHTML = summary.map(([label, value]) => `<div><span>${label}</span><b>${value}</b></div>`).join('');
+    }
+
+    function renderTables() {
+      const issues = state.rows
+        .filter(r => r.issues.length)
+        .sort((a, b) => {
+          const av = Math.abs(a.balance || 0);
+          const bv = Math.abs(b.balance || 0);
+          return bv - av;
+        })
+        .slice(0, 80);
+      document.getElementById('issueRows').innerHTML = issues.length ? issues.map(r => `
+        <tr>
+          <td>${shortDate(r.date)}</td>
+          <td>${fmt(r.coca)}</td>
+          <td>${fmt(r.css)}</td>
+          <td>${fmt(r.frente)}</td>
+          <td>${fmt(r.balance)}</td>
+          <td>${r.issues.join('; ')}</td>
+        </tr>
+      `).join('') : '<tr><td colspan="6" class="empty">Sin filas marcadas.</td></tr>';
+
+      const extremes = [];
+      state.rows.forEach(r => {
+        r.extremes.forEach(id => extremes.push({ row: r, id, value: r[id] }));
+      });
+      extremes.sort((a, b) => b.value - a.value);
+      document.getElementById('extremeRows').innerHTML = extremes.slice(0, 80).map(item => `
+        <tr>
+          <td>${shortDate(item.row.date)}</td>
+          <td>${series[item.id].label}</td>
+          <td>${fmt(item.value)}</td>
+          <td>${fmt(item.row.balance)}</td>
+          <td>${item.row.source || ''}</td>
+        </tr>
+      `).join('');
+
+      const gaps = state.stats.gaps;
+      document.getElementById('gapRows').innerHTML = gaps.length ? `
+        <div class="tableWrap">
+          <table>
+            <thead><tr><th>Desde</th><th>Hasta</th><th>Dias</th></tr></thead>
+            <tbody>${gaps.map(g => `<tr><td>${shortDate(g.from)}</td><td>${shortDate(g.to)}</td><td>${g.days}</td></tr>`).join('')}</tbody>
+          </table>
+        </div>
+      ` : '<div class="empty">No hay huecos de fechas.</div>';
+    }
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      const width = Math.max(320, Math.round(rect.width * ratio));
+      const height = Math.max(280, Math.round(rect.height * ratio));
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      return { width: rect.width, height: rect.height };
+    }
+
+    function valueTransform(v) {
+      if (state.scale === 'log') return Math.log10(Math.max(1, v));
+      return v;
+    }
+
+    function inverseTransform(v) {
+      if (state.scale === 'log') return Math.pow(10, v);
+      return v;
+    }
+
+    function draw() {
+      if (!state.rows.length) return;
+      const { width, height } = resizeCanvas();
+      ctx.clearRect(0, 0, width, height);
+
+      const pad = { left: 68, right: 26, top: 26, bottom: 52 };
+      const plotW = width - pad.left - pad.right;
+      const plotH = height - pad.top - pad.bottom;
+      const rows = visibleRows();
+      const activeSeries = Object.keys(series).filter(id => state.visible[id]);
+      const values = rows.flatMap(r => activeSeries.map(id => r[id]).filter(v => v !== null));
+      let minY = state.scale === 'log' ? 1 : 0;
+      let maxY = Math.max(...values, 1);
+      if (state.scale === 'linear') maxY *= 1.08;
+      const tMin = valueTransform(minY);
+      const tMax = valueTransform(maxY);
+
+      function xFor(i) {
+        if (rows.length <= 1) return pad.left;
+        return pad.left + (i / (rows.length - 1)) * plotW;
+      }
+
+      function yFor(v) {
+        const tv = valueTransform(v);
+        return pad.top + (1 - (tv - tMin) / (tMax - tMin || 1)) * plotH;
+      }
+
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.strokeStyle = '#edf0f3';
+      ctx.lineWidth = 1;
+      ctx.fillStyle = '#66717d';
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      for (let i = 0; i <= 6; i++) {
+        const y = pad.top + (i / 6) * plotH;
+        const tv = tMax - (i / 6) * (tMax - tMin);
+        const label = fmt(inverseTransform(tv), state.scale === 'log' ? 0 : 0);
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(width - pad.right, y);
+        ctx.stroke();
+        ctx.fillText(label, pad.left - 10, y);
+      }
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      const xTicks = Math.min(8, rows.length);
+      for (let i = 0; i < xTicks; i++) {
+        const idx = Math.round((i / Math.max(1, xTicks - 1)) * (rows.length - 1));
+        const x = xFor(idx);
+        ctx.fillText(shortDate(rows[idx].date), x, height - pad.bottom + 18);
+        ctx.strokeStyle = '#f3f5f7';
+        ctx.beginPath();
+        ctx.moveTo(x, pad.top);
+        ctx.lineTo(x, height - pad.bottom);
+        ctx.stroke();
+      }
+
+      activeSeries.forEach(id => {
+        ctx.strokeStyle = series[id].color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        rows.forEach((r, i) => {
+          const v = r[id];
+          if (v === null) return;
+          const x = xFor(i);
+          const y = yFor(v);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      });
+
+      rows.forEach((r, i) => {
+        const x = xFor(i);
+        if (state.showExtremes && r.extremes.length) {
+          const id = r.extremes[0];
+          const y = yFor(r[id]);
+          ctx.fillStyle = '#6752a8';
+          ctx.beginPath();
+          ctx.arc(x, y, 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        if (state.showIssues && r.issues.length) {
+          const v = r.frente ?? r.coca ?? r.css;
+          const y = yFor(v);
+          ctx.strokeStyle = '#b66a00';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(x - 5, y - 5);
+          ctx.lineTo(x + 5, y + 5);
+          ctx.moveTo(x + 5, y - 5);
+          ctx.lineTo(x - 5, y + 5);
+          ctx.stroke();
+        }
+      });
+
+      if (state.hover) {
+        const i = state.hover.index;
+        const r = rows[i];
+        const x = xFor(i);
+        ctx.strokeStyle = 'rgba(23, 33, 43, 0.35)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x, pad.top);
+        ctx.lineTo(x, height - pad.bottom);
+        ctx.stroke();
+        showTooltip(r, x, state.hover.y, width, height);
+      } else {
+        tooltip.style.display = 'none';
+      }
+    }
+
+    function showTooltip(r, x, y, width, height) {
+      const issues = r.issues.length ? `<br><span>Revisar: ${r.issues.join('; ')}</span>` : '';
+      const extremes = r.extremes.length ? `<br><span>Extremo: ${r.extremes.map(id => series[id].label).join(', ')}</span>` : '';
+      tooltip.innerHTML = `
+        <b>${shortDate(r.date)}</b>
+        <span>Rio Coca: ${fmt(r.coca)} m3/s</span><br>
+        <span>Derivado CSS: ${fmt(r.css)} m3/s</span><br>
+        <span>Frente erosion: ${fmt(r.frente)} m3/s</span><br>
+        <span>Balance: ${fmt(r.balance)} m3/s</span>
+        ${issues}${extremes}
+      `;
+      tooltip.style.display = 'block';
+      const rect = canvas.getBoundingClientRect();
+      const tx = Math.min(Math.max(x, 120), width - 120);
+      const ty = Math.min(Math.max(y, 80), height - 18);
+      tooltip.style.left = `${tx}px`;
+      tooltip.style.top = `${ty}px`;
+    }
+
+    function pointerIndex(event) {
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const padLeft = 68;
+      const padRight = 26;
+      const plotW = rect.width - padLeft - padRight;
+      const rows = visibleRows();
+      const idx = Math.round(((x - padLeft) / plotW) * (rows.length - 1));
+      return { index: Math.max(0, Math.min(rows.length - 1, idx)), y };
+    }
+
+    async function loadDefault() {
+      try {
+        const response = await fetch(csvPath, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        init(prepare(parseCSV(text)));
+      } catch (err) {
+        document.getElementById('loadDot').className = 'dot warn';
+        document.getElementById('loadStatus').textContent = 'Selecciona el CSV';
+        document.getElementById('subtitle').textContent = 'Abre esta pagina desde un servidor local o carga el CSV manualmente.';
+      }
+    }
+
+    document.getElementById('fileInput').addEventListener('change', async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      init(prepare(parseCSV(text)));
+    });
+
+    document.querySelectorAll('[data-series]').forEach(input => {
+      input.addEventListener('change', event => {
+        state.visible[event.target.dataset.series] = event.target.checked;
+        draw();
+      });
+    });
+
+    document.getElementById('showIssues').addEventListener('change', event => {
+      state.showIssues = event.target.checked;
+      draw();
+    });
+
+    document.getElementById('showExtremes').addEventListener('change', event => {
+      state.showExtremes = event.target.checked;
+      draw();
+    });
+
+    document.getElementById('linearBtn').addEventListener('click', () => {
+      state.scale = 'linear';
+      document.getElementById('linearBtn').classList.add('active');
+      document.getElementById('logBtn').classList.remove('active');
+      draw();
+    });
+
+    document.getElementById('logBtn').addEventListener('click', () => {
+      state.scale = 'log';
+      document.getElementById('logBtn').classList.add('active');
+      document.getElementById('linearBtn').classList.remove('active');
+      draw();
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      state.start = 0;
+      state.end = state.rows.length - 1;
+      document.getElementById('startRange').value = state.start;
+      document.getElementById('endRange').value = state.end;
+      draw();
+    });
+
+    document.getElementById('startRange').addEventListener('input', event => {
+      state.start = Math.min(Number(event.target.value), state.end - 1);
+      event.target.value = state.start;
+      draw();
+    });
+
+    document.getElementById('endRange').addEventListener('input', event => {
+      state.end = Math.max(Number(event.target.value), state.start + 1);
+      event.target.value = state.end;
+      draw();
+    });
+
+    canvas.addEventListener('mousemove', event => {
+      if (!state.rows.length) return;
+      state.hover = pointerIndex(event);
+      draw();
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      state.hover = null;
+      draw();
+    });
+
+    window.addEventListener('resize', draw);
+    loadDefault();
+  </script>
+</body>
+</html>
