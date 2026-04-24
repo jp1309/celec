@@ -166,8 +166,13 @@
     const startMonth = parseInt(selProdStartMonth.value);
     const endMonth = parseInt(selProdEndMonth.value);
 
+    // Excluir el último día disponible: el dato del día más reciente
+    // suele estar incompleto/preliminar y no debe graficarse.
+    const maxDate = PROD_DATA.reduce((m, r) => r.date > m ? r.date : m, "");
+
     // Filter Rows
     const filteredProdData = PROD_DATA.filter(r => {
+      if (r.date === maxDate) return false;
       const m = parseInt(r.date.slice(5, 7));
       return m >= startMonth && m <= endMonth;
     });
