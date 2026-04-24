@@ -36,7 +36,8 @@ jobs:
         # cada día (los PDFs no se versionan, el runner empieza limpio).
         run: |
           SINCE=$(date -u -d '7 days ago' +%Y-%m-%d)
-          python CCS/celec_pdf_robot.py --since $SINCE
+          python celec_pdf_robot.py --since $SINCE
+        working-directory: CCS
         continue-on-error: true
 
       - name: Extract CCS flows from new PDFs (only-missing)
