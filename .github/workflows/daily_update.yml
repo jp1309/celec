@@ -12,6 +12,7 @@ permissions:
 jobs:
   update-data:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,25 +32,41 @@ jobs:
           python -m pip install --upgrade pip
           pip install pandas requests urllib3 pymupdf pillow numpy pytesseract
 
+      # ── CCS: Río Coca ─────────────────────────────────────────────────
+      # Los scripts CCS usan rutas relativas (manifests/, downloads/, outputs/),
+      # por eso DEBEN correr con working-directory: CCS.
       - name: Download new CCS PDFs (Río Coca)
-        # Solo descarga PDFs de los últimos 7 días para evitar bajar todo el histórico
-        # cada día (los PDFs no se versionan, el runner empieza limpio).
+        # Solo descarga PDFs de los últimos 7 días: los PDFs no se versionan
+        # (gitignore), el runner empieza limpio. Sin --since intentaría bajar
+        # los 800+ PDFs del histórico cada día (~5 min, 500 MB).
         run: |
           SINCE=$(date -u -d '7 days ago' +%Y-%m-%d)
           python celec_pdf_robot.py --since $SINCE
         working-directory: CCS
+        timeout-minutes: 5
         continue-on-error: true
 
       - name: Extract CCS flows from new PDFs (only-missing)
+        # --only-missing salta fechas ya presentes en outputs/celec_daily_flows.csv
+        # (que sí está versionado). Solo procesa los PDFs descargados arriba.
         run: python celec_flow_extractor.py --only-missing --ocr-engine tesseract --ocr-lang spa
         working-directory: CCS
+        timeout-minutes: 10
         continue-on-error: true
 
+      # ── Producción / Hidrología (API CELEC) ───────────────────────────
       - name: Run CELEC Downloader Bot (production / hydrology)
+        # La API CELEC a veces se cuelga. timeout-minutes evita que bloquee
+        # el commit final si está degradada. continue-on-error permite que
+        # el resto del pipeline siga si este paso falla.
         run: python scripts/download_data.py
+        timeout-minutes: 8
         continue-on-error: true
 
+      # ── Consolidación + commit ────────────────────────────────────────
       - name: Build Dashboard Datasets (consolidate all)
+        # Lee Produ_mensual/, Hidro_mensual/ y CCS/outputs/celec_daily_flows.csv
+        # y escribe data/ + public/data/. Resiliente a datos faltantes.
         run: python scripts/build_datasets.py
 
       - name: Commit and Push changes
