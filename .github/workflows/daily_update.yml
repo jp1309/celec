@@ -31,9 +31,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install pandas requests urllib3 pymupdf pillow numpy pytesseract
 
-      - name: Run CELEC Downloader Bot (production / hydrology)
-        run: python scripts/download_data.py
-
       - name: Download new CCS PDFs (Río Coca)
         run: python CCS/celec_pdf_robot.py
         continue-on-error: true
@@ -41,6 +38,10 @@ jobs:
       - name: Extract CCS flows from new PDFs (only-missing)
         run: python CCS/celec_flow_extractor.py --only-missing --ocr-engine tesseract --ocr-lang spa
         working-directory: CCS
+        continue-on-error: true
+
+      - name: Run CELEC Downloader Bot (production / hydrology)
+        run: python scripts/download_data.py
         continue-on-error: true
 
       - name: Build Dashboard Datasets (consolidate all)
