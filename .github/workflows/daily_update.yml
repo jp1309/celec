@@ -32,11 +32,15 @@ jobs:
           pip install pandas requests urllib3 pymupdf pillow numpy pytesseract
 
       - name: Download new CCS PDFs (Río Coca)
-        run: python CCS/celec_pdf_robot.py
+        # Solo descarga PDFs de los últimos 7 días para evitar bajar todo el histórico
+        # cada día (los PDFs no se versionan, el runner empieza limpio).
+        run: |
+          SINCE=$(date -u -d '7 days ago' +%Y-%m-%d)
+          python CCS/celec_pdf_robot.py --since $SINCE
         continue-on-error: true
 
       - name: Extract CCS flows from new PDFs (only-missing)
-        run: python CCS/celec_flow_extractor.py --only-missing --ocr-engine tesseract --ocr-lang spa
+        run: python celec_flow_extractor.py --only-missing --ocr-engine tesseract --ocr-lang spa
         working-directory: CCS
         continue-on-error: true
 
