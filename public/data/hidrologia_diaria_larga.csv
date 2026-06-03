@@ -20915,12 +20915,21 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-06-01,2026,152,01-jun,Molino,Cota (msnm),1986.0276758083337,0
 2026-06-01,2026,152,01-jun,Sopladora,Caudal (m³/s),121.4952753125,0
 2026-06-01,2026,152,01-jun,Sopladora,Cota (msnm),1315.0936787833332,0
-2026-06-02,2026,153,02-jun,Cuenca del Rio Paute,Caudal (m³/s),154.33289852,0
-2026-06-02,2026,153,02-jun,Mazar,Caudal (m³/s),154.33289852,0
-2026-06-02,2026,153,02-jun,Mazar,Cota (msnm),2152.7066666666665,0
-2026-06-02,2026,153,02-jun,Minas San Francisco,Caudal (m³/s),51.64598335,0
-2026-06-02,2026,153,02-jun,Minas San Francisco,Cota (msnm),790.9375,0
-2026-06-02,2026,153,02-jun,Molino,Caudal (m³/s),93.09889366666664,0
-2026-06-02,2026,153,02-jun,Molino,Cota (msnm),1986.287353533333,0
-2026-06-02,2026,153,02-jun,Sopladora,Caudal (m³/s),137.3317202,0
-2026-06-02,2026,153,02-jun,Sopladora,Cota (msnm),1315.5518798666667,0
+2026-06-02,2026,153,02-jun,Cuenca del Rio Paute,Caudal (m³/s),167.2626038179167,0
+2026-06-02,2026,153,02-jun,Mazar,Caudal (m³/s),167.2626038179167,0
+2026-06-02,2026,153,02-jun,Mazar,Cota (msnm),2153.11125,0
+2026-06-02,2026,153,02-jun,Minas San Francisco,Caudal (m³/s),53.11092494166667,0
+2026-06-02,2026,153,02-jun,Minas San Francisco,Cota (msnm),790.865416666667,0
+2026-06-02,2026,153,02-jun,Molino,Caudal (m³/s),146.50342545833334,0
+2026-06-02,2026,153,02-jun,Molino,Cota (msnm),1986.1477489041663,0
+2026-06-02,2026,153,02-jun,Sopladora,Caudal (m³/s),131.34119164583333,0
+2026-06-02,2026,153,02-jun,Sopladora,Cota (msnm),1315.3991851833332,0
+2026-06-03,2026,154,03-jun,Cuenca del Rio Paute,Caudal (m³/s),169.338485905,0
+2026-06-03,2026,154,03-jun,Mazar,Caudal (m³/s),169.338485905,0
+2026-06-03,2026,154,03-jun,Mazar,Cota (msnm),2153.5175,0
+2026-06-03,2026,154,03-jun,Minas San Francisco,Caudal (m³/s),64.857781475,0
+2026-06-03,2026,154,03-jun,Minas San Francisco,Cota (msnm),791.3575,0
+2026-06-03,2026,154,03-jun,Molino,Caudal (m³/s),146.0552715,0
+2026-06-03,2026,154,03-jun,Molino,Cota (msnm),1987.0501477,0
+2026-06-03,2026,154,03-jun,Sopladora,Caudal (m³/s),125.359268,0
+2026-06-03,2026,154,03-jun,Sopladora,Cota (msnm),1315.393615725,0
