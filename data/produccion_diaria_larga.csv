@@ -11844,8 +11844,8 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-06-28,2026,179,28-jun,Minas San Francisco,Energía (MWh),5961.9800000000005,0
 2026-06-28,2026,179,28-jun,Molino,Energía (MWh),13757.261043,0
 2026-06-28,2026,179,28-jun,Sopladora,Energía (MWh),7808.810324000002,0
-2026-06-29,2026,180,29-jun,CSR (Mol+Maz+Sop+MSF),Energía (MWh),37029.324258,0
-2026-06-29,2026,180,29-jun,Mazar,Energía (MWh),3029.7319280000006,0
+2026-06-29,2026,180,29-jun,CSR (Mol+Maz+Sop+MSF),Energía (MWh),37029.324259,0
+2026-06-29,2026,180,29-jun,Mazar,Energía (MWh),3029.731929,0
 2026-06-29,2026,180,29-jun,Minas San Francisco,Energía (MWh),3095.5,0
 2026-06-29,2026,180,29-jun,Molino,Energía (MWh),20010.574925,0
 2026-06-29,2026,180,29-jun,Sopladora,Energía (MWh),10893.517405,0
@@ -11859,8 +11859,13 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-07-01,2026,182,01-jul,Minas San Francisco,Energía (MWh),3060.0,0
 2026-07-01,2026,182,01-jul,Molino,Energía (MWh),17546.703369,0
 2026-07-01,2026,182,01-jul,Sopladora,Energía (MWh),9828.303942999995,0
-2026-07-02,2026,183,02-jul,CSR (Mol+Maz+Sop+MSF),Energía (MWh),3574.637783,0
-2026-07-02,2026,183,02-jul,Mazar,Energía (MWh),0.0,0
-2026-07-02,2026,183,02-jul,Minas San Francisco,Energía (MWh),815.75,0
-2026-07-02,2026,183,02-jul,Molino,Energía (MWh),1757.135808,0
-2026-07-02,2026,183,02-jul,Sopladora,Energía (MWh),1001.751975,0
+2026-07-02,2026,183,02-jul,CSR (Mol+Maz+Sop+MSF),Energía (MWh),36786.116838,0
+2026-07-02,2026,183,02-jul,Mazar,Energía (MWh),1849.747895,0
+2026-07-02,2026,183,02-jul,Minas San Francisco,Energía (MWh),6480.0,0
+2026-07-02,2026,183,02-jul,Molino,Energía (MWh),18742.493353,0
+2026-07-02,2026,183,02-jul,Sopladora,Energía (MWh),9713.87559,0
+2026-07-03,2026,184,03-jul,CSR (Mol+Maz+Sop+MSF),Energía (MWh),5023.888099,0
+2026-07-03,2026,184,03-jul,Mazar,Energía (MWh),0.0,0
+2026-07-03,2026,184,03-jul,Minas San Francisco,Energía (MWh),816.5,0
+2026-07-03,2026,184,03-jul,Molino,Energía (MWh),2769.343835,0
+2026-07-03,2026,184,03-jul,Sopladora,Energía (MWh),1438.044264,0
