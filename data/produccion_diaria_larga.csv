@@ -11859,13 +11859,23 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-07-01,2026,182,01-jul,Minas San Francisco,Energía (MWh),3060.0,0
 2026-07-01,2026,182,01-jul,Molino,Energía (MWh),17546.703369,0
 2026-07-01,2026,182,01-jul,Sopladora,Energía (MWh),9828.303942999995,0
-2026-07-02,2026,183,02-jul,CSR (Mol+Maz+Sop+MSF),Energía (MWh),36786.116838,0
+2026-07-02,2026,183,02-jul,CSR (Mol+Maz+Sop+MSF),Energía (MWh),36782.116838,0
 2026-07-02,2026,183,02-jul,Mazar,Energía (MWh),1849.747895,0
-2026-07-02,2026,183,02-jul,Minas San Francisco,Energía (MWh),6480.0,0
+2026-07-02,2026,183,02-jul,Minas San Francisco,Energía (MWh),6476.0,0
 2026-07-02,2026,183,02-jul,Molino,Energía (MWh),18742.493353,0
 2026-07-02,2026,183,02-jul,Sopladora,Energía (MWh),9713.87559,0
-2026-07-03,2026,184,03-jul,CSR (Mol+Maz+Sop+MSF),Energía (MWh),5023.888099,0
-2026-07-03,2026,184,03-jul,Mazar,Energía (MWh),0.0,0
-2026-07-03,2026,184,03-jul,Minas San Francisco,Energía (MWh),816.5,0
-2026-07-03,2026,184,03-jul,Molino,Energía (MWh),2769.343835,0
-2026-07-03,2026,184,03-jul,Sopladora,Energía (MWh),1438.044264,0
+2026-07-03,2026,184,03-jul,CSR (Mol+Maz+Sop+MSF),Energía (MWh),43701.625742000004,0
+2026-07-03,2026,184,03-jul,Mazar,Energía (MWh),2449.371136,0
+2026-07-03,2026,184,03-jul,Minas San Francisco,Energía (MWh),6531.0,0
+2026-07-03,2026,184,03-jul,Molino,Energía (MWh),23390.465526,0
+2026-07-03,2026,184,03-jul,Sopladora,Energía (MWh),11330.789080000002,0
+2026-07-04,2026,185,04-jul,CSR (Mol+Maz+Sop+MSF),Energía (MWh),44503.026703999996,0
+2026-07-04,2026,185,04-jul,Mazar,Energía (MWh),2273.4393789999995,0
+2026-07-04,2026,185,04-jul,Minas San Francisco,Energía (MWh),6520.96,0
+2026-07-04,2026,185,04-jul,Molino,Energía (MWh),24604.393456,0
+2026-07-04,2026,185,04-jul,Sopladora,Energía (MWh),11104.233869,0
+2026-07-05,2026,186,05-jul,CSR (Mol+Maz+Sop+MSF),Energía (MWh),3656.009577,0
+2026-07-05,2026,186,05-jul,Mazar,Energía (MWh),0.0,0
+2026-07-05,2026,186,05-jul,Minas San Francisco,Energía (MWh),509.45,0
+2026-07-05,2026,186,05-jul,Molino,Energía (MWh),2222.716299,0
+2026-07-05,2026,186,05-jul,Sopladora,Energía (MWh),923.843278,0
