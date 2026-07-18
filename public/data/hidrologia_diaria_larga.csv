@@ -21320,12 +21320,21 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-07-16,2026,197,16-jul,Molino,Cota (msnm),1987.9257598916668,0
 2026-07-16,2026,197,16-jul,Sopladora,Caudal (m³/s),130.89194390833333,0
 2026-07-16,2026,197,16-jul,Sopladora,Cota (msnm),1315.8329620375,0
-2026-07-17,2026,198,17-jul,Cuenca del Rio Paute,Caudal (m³/s),99.789597135,0
-2026-07-17,2026,198,17-jul,Mazar,Caudal (m³/s),99.789597135,0
-2026-07-17,2026,198,17-jul,Mazar,Cota (msnm),2152.855,0
-2026-07-17,2026,198,17-jul,Minas San Francisco,Caudal (m³/s),38.7741787,0
-2026-07-17,2026,198,17-jul,Minas San Francisco,Cota (msnm),791.51,0
-2026-07-17,2026,198,17-jul,Molino,Caudal (m³/s),113.46385,0
-2026-07-17,2026,198,17-jul,Molino,Cota (msnm),1987.3300127,0
-2026-07-17,2026,198,17-jul,Sopladora,Caudal (m³/s),111.6150864,0
-2026-07-17,2026,198,17-jul,Sopladora,Cota (msnm),1315.39007565,0
+2026-07-17,2026,198,17-jul,Cuenca del Rio Paute,Caudal (m³/s),244.57468121375,0
+2026-07-17,2026,198,17-jul,Mazar,Caudal (m³/s),244.57468121375,0
+2026-07-17,2026,198,17-jul,Mazar,Cota (msnm),2153.424583333333,0
+2026-07-17,2026,198,17-jul,Minas San Francisco,Caudal (m³/s),63.08066257083333,0
+2026-07-17,2026,198,17-jul,Minas San Francisco,Cota (msnm),792.32375,0
+2026-07-17,2026,198,17-jul,Molino,Caudal (m³/s),230.99682120833333,0
+2026-07-17,2026,198,17-jul,Molino,Cota (msnm),1988.6942094666672,0
+2026-07-17,2026,198,17-jul,Sopladora,Caudal (m³/s),128.44090415833332,0
+2026-07-17,2026,198,17-jul,Sopladora,Cota (msnm),1315.92389425,0
+2026-07-18,2026,199,18-jul,Cuenca del Rio Paute,Caudal (m³/s),207.55486483,0
+2026-07-18,2026,199,18-jul,Mazar,Caudal (m³/s),207.55486483,0
+2026-07-18,2026,199,18-jul,Mazar,Cota (msnm),2154.04,0
+2026-07-18,2026,199,18-jul,Minas San Francisco,Caudal (m³/s),136.144524,0
+2026-07-18,2026,199,18-jul,Minas San Francisco,Cota (msnm),792.71,0
+2026-07-18,2026,199,18-jul,Molino,Caudal (m³/s),309.483191,0
+2026-07-18,2026,199,18-jul,Molino,Cota (msnm),1990.8123779,0
+2026-07-18,2026,199,18-jul,Sopladora,Caudal (m³/s),138.279291,0
+2026-07-18,2026,199,18-jul,Sopladora,Cota (msnm),1315.9931641,0
