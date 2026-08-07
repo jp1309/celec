@@ -21500,12 +21500,21 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-08-05,2026,217,05-ago,Molino,Cota (msnm),1985.800792441667,0
 2026-08-05,2026,217,05-ago,Sopladora,Caudal (m³/s),101.70928012083333,0
 2026-08-05,2026,217,05-ago,Sopladora,Cota (msnm),1315.3425598166668,0
-2026-08-06,2026,218,06-ago,Cuenca del Rio Paute,Caudal (m³/s),71.76292860999999,0
-2026-08-06,2026,218,06-ago,Mazar,Caudal (m³/s),71.76292860999999,0
-2026-08-06,2026,218,06-ago,Mazar,Cota (msnm),2152.325,0
-2026-08-06,2026,218,06-ago,Minas San Francisco,Caudal (m³/s),14.3272185,0
-2026-08-06,2026,218,06-ago,Minas San Francisco,Cota (msnm),791.165,0
-2026-08-06,2026,218,06-ago,Molino,Caudal (m³/s),73.8247795,0
-2026-08-06,2026,218,06-ago,Molino,Cota (msnm),1985.8880005,0
-2026-08-06,2026,218,06-ago,Sopladora,Caudal (m³/s),103.03275225,0
-2026-08-06,2026,218,06-ago,Sopladora,Cota (msnm),1314.6801758,0
+2026-08-06,2026,218,06-ago,Cuenca del Rio Paute,Caudal (m³/s),44.29459372708333,0
+2026-08-06,2026,218,06-ago,Mazar,Caudal (m³/s),44.29459372708333,0
+2026-08-06,2026,218,06-ago,Mazar,Cota (msnm),2152.2916666666665,0
+2026-08-06,2026,218,06-ago,Minas San Francisco,Caudal (m³/s),14.250208495833336,0
+2026-08-06,2026,218,06-ago,Minas San Francisco,Cota (msnm),791.1633333333334,0
+2026-08-06,2026,218,06-ago,Molino,Caudal (m³/s),84.79489512500001,0
+2026-08-06,2026,218,06-ago,Molino,Cota (msnm),1985.6219177333328,0
+2026-08-06,2026,218,06-ago,Sopladora,Caudal (m³/s),109.330697725,0
+2026-08-06,2026,218,06-ago,Sopladora,Cota (msnm),1315.5285034208334,0
+2026-08-07,2026,219,07-ago,Cuenca del Rio Paute,Caudal (m³/s),0.0,0
+2026-08-07,2026,219,07-ago,Mazar,Caudal (m³/s),0.0,0
+2026-08-07,2026,219,07-ago,Mazar,Cota (msnm),0.0,0
+2026-08-07,2026,219,07-ago,Minas San Francisco,Caudal (m³/s),13.7119648,0
+2026-08-07,2026,219,07-ago,Minas San Francisco,Cota (msnm),790.75,0
+2026-08-07,2026,219,07-ago,Molino,Caudal (m³/s),0.0,0
+2026-08-07,2026,219,07-ago,Molino,Cota (msnm),0.0,0
+2026-08-07,2026,219,07-ago,Sopladora,Caudal (m³/s),0.0,0
+2026-08-07,2026,219,07-ago,Sopladora,Cota (msnm),0.0,0
