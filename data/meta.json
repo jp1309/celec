@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-07T06:08:48.667454+00:00",
+  "generated_at_utc": "2026-08-08T05:42:32.414806+00:00",
   "produccion": {
     "rows": 12045,
     "years": [
@@ -46,12 +46,12 @@
     ]
   },
   "ccs": {
-    "rows": 916,
+    "rows": 918,
     "fecha_min": "2024-01-01",
-    "fecha_max": "2026-08-04",
-    "ultimo_coca": 550.88,
+    "fecha_max": "2026-08-06",
+    "ultimo_coca": 281.79,
     "ultimo_css": 222.14,
-    "ultimo_frente": 328.74,
+    "ultimo_frente": 59.65,
     "years": [
       2024,
       2025,
