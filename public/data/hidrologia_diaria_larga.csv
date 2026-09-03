@@ -21704,7 +21704,7 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-08-28,2026,240,28-ago,Minas San Francisco,Caudal (m³/s),12.00618040833333,0
 2026-08-28,2026,240,28-ago,Minas San Francisco,Cota (msnm),788.2800000000001,0
 2026-08-28,2026,240,28-ago,Molino,Caudal (m³/s),102.07703504166666,0
-2026-08-28,2026,240,28-ago,Molino,Cota (msnm),1985.0061461583332,0
+2026-08-28,2026,240,28-ago,Molino,Cota (msnm),1985.0061461583327,0
 2026-08-28,2026,240,28-ago,Sopladora,Caudal (m³/s),115.62086132916666,0
 2026-08-28,2026,240,28-ago,Sopladora,Cota (msnm),1315.382568370833,0
 2026-08-29,2026,241,29-ago,Cuenca del Rio Paute,Caudal (m³/s),37.99978783291666,0
@@ -21743,12 +21743,21 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-09-01,2026,244,01-sep,Molino,Cota (msnm),1985.2317455249995,0
 2026-09-01,2026,244,01-sep,Sopladora,Caudal (m³/s),109.1308057666667,0
 2026-09-01,2026,244,01-sep,Sopladora,Cota (msnm),1315.5369974708335,0
-2026-09-02,2026,245,02-sep,Cuenca del Rio Paute,Caudal (m³/s),36.2767656,0
-2026-09-02,2026,245,02-sep,Mazar,Caudal (m³/s),36.2767656,0
-2026-09-02,2026,245,02-sep,Mazar,Cota (msnm),2147.0325000000003,0
-2026-09-02,2026,245,02-sep,Minas San Francisco,Caudal (m³/s),13.669925,0
-2026-09-02,2026,245,02-sep,Minas San Francisco,Cota (msnm),790.5557142857143,0
-2026-09-02,2026,245,02-sep,Molino,Caudal (m³/s),91.16557275,0
-2026-09-02,2026,245,02-sep,Molino,Cota (msnm),1984.90740675,0
-2026-09-02,2026,245,02-sep,Sopladora,Caudal (m³/s),97.376599675,0
-2026-09-02,2026,245,02-sep,Sopladora,Cota (msnm),1315.37435915,0
+2026-09-02,2026,245,02-sep,Cuenca del Rio Paute,Caudal (m³/s),38.9475467825,0
+2026-09-02,2026,245,02-sep,Mazar,Caudal (m³/s),38.9475467825,0
+2026-09-02,2026,245,02-sep,Mazar,Cota (msnm),2146.941666666666,0
+2026-09-02,2026,245,02-sep,Minas San Francisco,Caudal (m³/s),12.451918974999998,0
+2026-09-02,2026,245,02-sep,Minas San Francisco,Cota (msnm),790.4470833333334,0
+2026-09-02,2026,245,02-sep,Molino,Caudal (m³/s),100.63826850000002,0
+2026-09-02,2026,245,02-sep,Molino,Cota (msnm),1984.4869450333329,0
+2026-09-02,2026,245,02-sep,Sopladora,Caudal (m³/s),119.93585765833332,0
+2026-09-02,2026,245,02-sep,Sopladora,Cota (msnm),1315.4811197916663,0
+2026-09-03,2026,246,03-sep,Cuenca del Rio Paute,Caudal (m³/s),41.2994357875,0
+2026-09-03,2026,246,03-sep,Mazar,Caudal (m³/s),41.2994357875,0
+2026-09-03,2026,246,03-sep,Mazar,Cota (msnm),2146.6,0
+2026-09-03,2026,246,03-sep,Minas San Francisco,Caudal (m³/s),14.8832477,0
+2026-09-03,2026,246,03-sep,Minas San Francisco,Cota (msnm),789.96,0
+2026-09-03,2026,246,03-sep,Molino,Caudal (m³/s),133.47615274999998,0
+2026-09-03,2026,246,03-sep,Molino,Cota (msnm),1984.46255175,0
+2026-09-03,2026,246,03-sep,Sopladora,Caudal (m³/s),97.7602401,0
+2026-09-03,2026,246,03-sep,Sopladora,Cota (msnm),1315.1192627,0
