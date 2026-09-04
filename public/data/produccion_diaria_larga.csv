@@ -12154,8 +12154,8 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-08-29,2026,241,29-ago,Minas San Francisco,Energía (MWh),514.25,0
 2026-08-29,2026,241,29-ago,Molino,Energía (MWh),9988.677214,0
 2026-08-29,2026,241,29-ago,Sopladora,Energía (MWh),5688.078095,0
-2026-08-30,2026,242,30-ago,CSR (Mol+Maz+Sop+MSF),Energía (MWh),15584.65778,0
-2026-08-30,2026,242,30-ago,Mazar,Energía (MWh),1225.580134,0
+2026-08-30,2026,242,30-ago,CSR (Mol+Maz+Sop+MSF),Energía (MWh),15584.657781,0
+2026-08-30,2026,242,30-ago,Mazar,Energía (MWh),1225.580135,0
 2026-08-30,2026,242,30-ago,Minas San Francisco,Energía (MWh),1322.75,0
 2026-08-30,2026,242,30-ago,Molino,Energía (MWh),8436.311017,0
 2026-08-30,2026,242,30-ago,Sopladora,Energía (MWh),4600.016629,0
@@ -12174,8 +12174,13 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-09-02,2026,245,02-sep,Minas San Francisco,Energía (MWh),1134.75,0
 2026-09-02,2026,245,02-sep,Molino,Energía (MWh),16559.210956000006,0
 2026-09-02,2026,245,02-sep,Sopladora,Energía (MWh),9428.72904,0
-2026-09-03,2026,246,03-sep,CSR (Mol+Maz+Sop+MSF),Energía (MWh),4089.912703,0
-2026-09-03,2026,246,03-sep,Mazar,Energía (MWh),525.98905,0
-2026-09-03,2026,246,03-sep,Minas San Francisco,Energía (MWh),18.5,0
-2026-09-03,2026,246,03-sep,Molino,Energía (MWh),2237.828541,0
-2026-09-03,2026,246,03-sep,Sopladora,Energía (MWh),1307.595112,0
+2026-09-03,2026,246,03-sep,CSR (Mol+Maz+Sop+MSF),Energía (MWh),29412.930618000006,0
+2026-09-03,2026,246,03-sep,Mazar,Energía (MWh),3252.036268,0
+2026-09-03,2026,246,03-sep,Minas San Francisco,Energía (MWh),1190.0,0
+2026-09-03,2026,246,03-sep,Molino,Energía (MWh),15858.202591000005,0
+2026-09-03,2026,246,03-sep,Sopladora,Energía (MWh),9112.691759,0
+2026-09-04,2026,247,04-sep,CSR (Mol+Maz+Sop+MSF),Energía (MWh),3498.4011579999997,0
+2026-09-04,2026,247,04-sep,Mazar,Energía (MWh),266.574891,0
+2026-09-04,2026,247,04-sep,Minas San Francisco,Energía (MWh),21.83,0
+2026-09-04,2026,247,04-sep,Molino,Energía (MWh),2028.210224,0
+2026-09-04,2026,247,04-sep,Sopladora,Energía (MWh),1181.786043,0
