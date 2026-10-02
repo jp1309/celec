@@ -12304,8 +12304,8 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-09-28,2026,271,28-sep,Minas San Francisco,Energía (MWh),1545.25,0
 2026-09-28,2026,271,28-sep,Molino,Energía (MWh),17102.738381,0
 2026-09-28,2026,271,28-sep,Sopladora,Energía (MWh),8756.463671000001,0
-2026-09-29,2026,272,29-sep,CSR (Mol+Maz+Sop+MSF),Energía (MWh),30977.175612,0
-2026-09-29,2026,272,29-sep,Mazar,Energía (MWh),2601.194327,0
+2026-09-29,2026,272,29-sep,CSR (Mol+Maz+Sop+MSF),Energía (MWh),30977.175613,0
+2026-09-29,2026,272,29-sep,Mazar,Energía (MWh),2601.194328,0
 2026-09-29,2026,272,29-sep,Minas San Francisco,Energía (MWh),282.25,0
 2026-09-29,2026,272,29-sep,Molino,Energía (MWh),18115.780876,0
 2026-09-29,2026,272,29-sep,Sopladora,Energía (MWh),9977.950409,0
@@ -12314,8 +12314,13 @@ date,year,doy365,mmdd,series,metric,value,is_placeholder
 2026-09-30,2026,273,30-sep,Minas San Francisco,Energía (MWh),721.5,0
 2026-09-30,2026,273,30-sep,Molino,Energía (MWh),15265.662617,0
 2026-09-30,2026,273,30-sep,Sopladora,Energía (MWh),8681.972887000002,0
-2026-10-01,2026,274,01-oct,CSR (Mol+Maz+Sop+MSF),Energía (MWh),4454.235195,0
-2026-10-01,2026,274,01-oct,Mazar,Energía (MWh),802.896608,0
-2026-10-01,2026,274,01-oct,Minas San Francisco,Energía (MWh),8.75,0
-2026-10-01,2026,274,01-oct,Molino,Energía (MWh),2295.643026,0
-2026-10-01,2026,274,01-oct,Sopladora,Energía (MWh),1346.945561,0
+2026-10-01,2026,274,01-oct,CSR (Mol+Maz+Sop+MSF),Energía (MWh),27735.440293,0
+2026-10-01,2026,274,01-oct,Mazar,Energía (MWh),3172.479257,0
+2026-10-01,2026,274,01-oct,Minas San Francisco,Energía (MWh),763.75,0
+2026-10-01,2026,274,01-oct,Molino,Energía (MWh),15104.866309,0
+2026-10-01,2026,274,01-oct,Sopladora,Energía (MWh),8694.344727000002,0
+2026-10-02,2026,275,02-oct,CSR (Mol+Maz+Sop+MSF),Energía (MWh),3958.957322,0
+2026-10-02,2026,275,02-oct,Mazar,Energía (MWh),132.820415,0
+2026-10-02,2026,275,02-oct,Minas San Francisco,Energía (MWh),10.0,0
+2026-10-02,2026,275,02-oct,Molino,Energía (MWh),2417.864324,0
+2026-10-02,2026,275,02-oct,Sopladora,Energía (MWh),1398.272583,0
