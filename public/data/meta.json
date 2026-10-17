@@ -1,7 +1,7 @@
 {
-  "generated_at_utc": "2026-10-16T09:30:26.929635+00:00",
+  "generated_at_utc": "2026-10-17T09:02:07.889837+00:00",
   "produccion": {
-    "rows": 12395,
+    "rows": 12400,
     "years": [
       2020,
       2021,
@@ -23,7 +23,7 @@
     ]
   },
   "hidrologia": {
-    "rows": 22149,
+    "rows": 22158,
     "years": [
       2020,
       2021,
@@ -46,12 +46,12 @@
     ]
   },
   "ccs": {
-    "rows": 952,
+    "rows": 953,
     "fecha_min": "2024-01-01",
-    "fecha_max": "2026-10-14",
-    "ultimo_coca": 162.54,
-    "ultimo_css": 142.62,
-    "ultimo_frente": 19.92,
+    "fecha_max": "2026-10-15",
+    "ultimo_coca": 165.71,
+    "ultimo_css": 145.56,
+    "ultimo_frente": 20.15,
     "years": [
       2024,
       2025,
