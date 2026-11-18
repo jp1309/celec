@@ -22,8 +22,12 @@ PROD_ENDPOINTS = {
     "EnergiaCsr": "sardomcsr/csrEnerDia"
 }
 
+# El caudal de la cuenca del río Paute no es un punto (mrid): CELEC lo publica como serie diaria
+# por mes en CUENCA_ENDPOINT (ver get_caudal_cuenca). Hasta el 2025-12-20 los CSV mensuales se
+# descargaban a mano y coinciden con este endpoint.
+CUENCA_ENDPOINT = "sardomcsr/csrCaudCuenMesAvg"
+
 HIDRO_MRIDS = {
-    "CaudalCuencaPaute": 30538,
     "CaudalMol": 24811,
     "CotaMol": 24019,
     "CaudalMaz": 30538,
@@ -56,6 +60,28 @@ def get_celec_data(endpoint, params):
     except Exception as e:
         print(f"  [!] Error consultando {endpoint}: {e}")
         return []
+
+_cuenca_por_mes = {}
+
+def get_caudal_cuenca(date):
+    """Caudal medio diario de la cuenca del río Paute (m³/s), o None si CELEC aún no lo tiene.
+
+    El endpoint devuelve un valor por día del mes, con la marca de la medianoche local (05:00 UTC).
+    Sin fechaInicio/fechaFin devuelve todo en null. Se consulta una vez por mes.
+    """
+    clave = (date.year, date.month)
+    if clave not in _cuenca_por_mes:
+        inicio = datetime(date.year, date.month, 1)
+        fin = (inicio + timedelta(days=32)).replace(day=1)
+        items = get_celec_data(CUENCA_ENDPOINT, {
+            "fecha": inicio.strftime("%d/%m/%Y 00:00:00"),
+            "fechaInicio": inicio.strftime("%Y-%m-%dT05:00:00.000Z"),
+            "fechaFin": fin.strftime("%Y-%m-%dT04:59:59.000Z"),
+        })
+        _cuenca_por_mes[clave] = {
+            i["loctimestamp"][:10]: i["valueedit"] for i in items if i.get("valueedit") is not None
+        }
+    return _cuenca_por_mes[clave].get(date.strftime("%Y-%m-%d"))
 
 def download_data_for_date(date):
     target_date_str = date.strftime("%d/%m/%Y 00:00:00")
@@ -91,6 +117,9 @@ def download_data_for_date(date):
             hidro_row[col] = sum(vals)/len(vals) if vals else 0.0
         else:
             hidro_row[col] = 0.0
+
+    cuenca = get_caudal_cuenca(date)
+    hidro_row["CaudalCuencaPaute"] = cuenca if cuenca is not None else 0.0
 
     return prod_row, hidro_row
 
